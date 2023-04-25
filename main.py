@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request
 from sqlalchemy import Column, Integer, String, Numeric, create_engine, text
+import hashlib
+from decimal import Decimal
+
 
 app = Flask(__name__)
 
