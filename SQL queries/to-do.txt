@@ -1,0 +1,6 @@
+update trello
+update git repo
+review ppt for anything I might need to change in db to accomodate for Final
+update db
+pick color theme for website for cohesive ui/ux experience
+make routes
