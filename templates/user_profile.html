@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body%}
+<main>
+    {%for a in result.fetchall() %}
+    <h2>Profile Information</h2>
+    <h3>Username: {{a.username}}</h3>
+    <h3>First Name: {{a.first_name}}</h3>    
+    <h3>Last Name: {{a.last_name}}</h3>    
+    <h3>Email Address: {{a.email}}</h3>    
+    <h3>Account Type: {{a.user_type}}</h3>
+    {% endfor %} 
+</main>
+{% endblock%}

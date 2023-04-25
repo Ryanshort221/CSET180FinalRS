@@ -1,13 +1,29 @@
 {% extends "base.html" %}
 {% block body%}
-<h2>{{message}}</h2>
 <main>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <h2>{{ message }}</h2>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% if session.username is not defined %}
     <form class="login_form" action="/login" method="POST">
         <h2>Login</h2>
         <label for="username">Username</label>
         <input type="text" name="username" id="username" placeholder="Username" required>
         <label for="password">Password</label>
         <input type="password" name="password" id="password" placeholder="Password" required>
+        <label for="user_type">User Type</label>
+        <select name="user_type" id="user_type">
+            <option value="customer">Customer</option>
+            <option value="vendor">Vendor</option>
+            <option value="admin">Admin</option>
         <input type="submit" value="Login">
+    </form>
+    {% else %}
+    <h2>You are already logged in!</h2>
+    {% endif %}
 </main>
 {% endblock%}

@@ -19,7 +19,16 @@
             <div class="header_links">
                 <ul>
                     <li><a href="/">Home</a></li>
+                    {% if session.username is not defined %}
                     <li><a href="/register">Register</a></li>
+                    {% else %}
+                    <li><a href="/user_profile">User Profile</a></li>
+                    <li>
+                        <form action="/logout" method="POST">
+                            <input type="submit" value="Logout">
+                        </form>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </nav>
