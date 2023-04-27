@@ -1,5 +1,61 @@
-{% extends "base.html" %}
-{% block body%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel= "stylesheet" href= "../static/styles/header.css">
+    <title>Multi-vendor ecommerce website</title>
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="header_nav">
+            <div class="header_logo">
+                <img src="static/images/logo-placeholder.png" alt="">
+            </div>
+            <div class="header_title">
+                <h1>Wacky Waving Inflatable Arm Emporium</h1>
+            </div>
+            <div class="header_links">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    {% if session.username is not defined %}
+                    <li><a href="/register">Register</a></li>
+                    {% elif session['username'] == 'admin' %}
+                    <li>
+                        <form action="/logout" method="POST">
+                            <input type="submit" value="Logout">
+                        </form>
+                    </li>
+                    {% elif session['username'] == 'vendor' %}
+                    <li><a href="/vendor_orders">Orders</a></li>
+                    <li><a href="/vendor">Dashboard</a></li>
+                    <li>
+                        <form action="/logout" method="POST">
+                            <input type="submit" value="Logout">
+                        </form>
+                    </li>
+                    {% else %}
+                    <li><a href="/products">Products</a></li>
+                    <li><a href="/cart">Cart</a></li>
+                    <li><a href="/orders">Orders</a></li>
+                    <li><a href="/return"></a>Return</li>
+                    <li><a href="/chat">Chat</a></li>
+                    <li><a href="/review">Review</a></li>
+                    <li><a href="/user_profile">User Profile</a></li>
+                    <li>
+                        <form action="/logout" method="POST">
+                            <input type="submit" value="Logout">
+                        </form>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </header>
 <main>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -8,5 +64,130 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
+    {{error}}
+    <div class="vendor_btns">
+        <button id="add_form_btn">Add Item</button>
+        <button id="update_form_btn">Update Item</button>
+    </div>
+    <div class="vendor_products">
+        {%for a in result.fetchall() %}
+        <div class="card">
+            <img src="{{a.product_img}}" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">{{a.title}}</h5>
+                <p class="card-text">Product ID: {{a.product_id}}</p>
+                <p class="card-text">{{a.description}}</p>
+                <p class="card-text">Stock status: {{a.stock_status}}</p>
+                <p class="card-text">Inventory: {{a.inventory}}</p>
+                <p class="card-text">Price: ${{a.price}}</p>
+                <p class="card-text">Color: {{a.color}}</p>
+                {% if a.discounted_price is not none and a.discounted_price > 0 %}
+                    <p class="card-text">Discount: ${{a.discounted_price}}</p>
+                    <p class="card-text">Discount over date: {{a.discount_over_date}}</p>
+                {% else %}
+                    <p class="card-text">No discount</p>
+                {% endif %}
+                {% if a.warranty_duration is not none %}
+                    <p class="card-text">Warranty duration: {{a.warranty_duration}}</p>
+                {% else %}
+                    <p class="card-text">No warranty</p>
+                {% endif %}
+                <form action="/delete_item" method="POST">
+                    <input type="hidden" name="product_id" value="{{a.product_id}}">
+                    <input id="vendor_delete" type="submit" value="Delete">
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <form class="add_item_form add_form_hidden" action="/add_item" method="POST">
+        <h3>New Product Form</h3>
+        <ion-icon id="add_close_btn" name="close"></ion-icon>
+        <label for="title">Item Title</label>
+        <input type="text" name="title" id="title" placeholder="Item Title" required>
+        <label for="description">Item Description</label>
+        <input type="text" name="description" id="description" placeholder="Item Description" required>
+        <label for="inventory">Item Inventory</label>
+        <input type="number" name="inventory" id="inventory" placeholder="Item Inventory" required>
+        <label for="color">Color</label>
+        <input type="text" name="color" id="color" placeholder="Color" required>
+        <label for="product_img">Link For Product Image</label>
+        <input type="text" name="product_img" id="product_img" placeholder="Link For Product Image" required>
+        <label for="item_price">Item Price</label>
+        <input type="number" step="any" name="price" id="price" placeholder="Item Price" required>
+        <label for="discounted_price">Discounted Price</label>
+        <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
+        <label for="discount_over_date">Discount Over Date</label>
+        <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
+        <label for="warranty_duration">Warranty Duration</label>
+        <input type="text" name="warranty_duration" id="warranty_duration" placeholder="Warranty Duration">
+        <label for="stock_status">Stock Status</label>
+        <select name="stock_status" id="stock_status">
+            <option value="in stock">In Stock</option>
+            <option value="out of stock">Out of Stock</option>
+            <option value="backorder">Back Order</option>
+        <input type="submit" value="Add Item">
+    </form>
+    <form class="update_item_form update_form_hidden" action="/update_item" method="POST">
+        <h3>Update Form</h3>
+        <ion-icon id="update_close_btn" name="close"></ion-icon>
+        <label for="product_id">Product ID</label>
+        <input type="text" name="product_id" id="product_id" placeholder="Product ID" required>
+        <label for="title">Item Title</label>
+        <input type="text" name="title" id="title" placeholder="Item Title" >
+        <label for="description">Item Description</label>
+        <input type="text" name="description" id="description" placeholder="Item Description">
+        <label for="inventory">Item Inventory</label>
+        <input type="number" name="inventory" id="inventory" placeholder="Item Inventory">
+        <label for="color">Color</label>
+        <input type="text" name="color" id="color" placeholder="Color">
+        <label for="product_img">Link For Product Image</label>
+        <input type="text" name="product_img" id="product_img" placeholder="Link For Product Image">
+        <label for="item_price">Item Price</label>
+        <input type="number" step="any" name="price" id="price" placeholder="Item Price">
+        <label for="discounted_price">Discounted Price</label>
+        <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
+        <label for="discount_over_date">Discount Over Date</label>
+        <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
+        <label for="warranty_duration">Warranty Duration</label>
+        <input type="text" name="warranty_duration" id="warranty_duration" placeholder="Warranty Duration">
+        <label for="stock_status">Stock Status</label>
+        <select name="stock_status" id="stock_status">
+            <option value="in stock">In Stock</option>
+            <option value="out of stock">Out of Stock</option>
+            <option value="backorder">Back Order</option>
+        <input type="submit" value="Update Item">
+    </form>
 </main>
-{% endblock%}
+    <footer>
+        <nav class="footer_nav">
+            
+        </nav>
+    </footer>
+<script>
+    const add_form_btn = document.getElementById('add_form_btn');
+    const add_item_form = document.querySelector('.add_item_form');
+    const add_close_btn = document.querySelector('#add_close_btn')
+    add_form_btn.addEventListener('click', () => {
+        add_item_form.classList.remove('add_form_hidden');
+        add_item_form.classList.add('add_form_visible');
+    });
+    add_close_btn.addEventListener('click', () => {
+        add_item_form.classList.remove('add_form_visible');
+        add_item_form.classList.add('add_form_hidden');
+    });
+    const update_form_btn = document.getElementById('update_form_btn');
+    const update_item_form = document.querySelector('.update_item_form');
+    const update_close_btn = document.querySelector('#update_close_btn')
+    update_form_btn.addEventListener('click', () => {
+        update_item_form.classList.remove('update_form_hidden');
+        update_item_form.classList.add('update_form_visible');
+    });
+    update_close_btn.addEventListener('click', () => {
+        update_item_form.classList.remove('update_form_visible');
+        update_item_form.classList.add('update_form_hidden');
+    });
+</script>
+</body>
+
+</html>

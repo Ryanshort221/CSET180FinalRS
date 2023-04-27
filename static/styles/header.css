@@ -22,6 +22,13 @@ header {
     padding: 10px 0;
 }
 
+footer {
+    width: 100%;
+    height: 250px;
+    background-color: rgba(127, 180, 255, 0.349);
+    padding: 10px 0;
+}
+
 .header_logo img {
     width: 100px;
     height: 100px;
@@ -42,9 +49,10 @@ header {
 }
 
 main {
+    padding-top: 10px;
     width: 100%;
-    min-height: 90vh;
-    background-color: #8d8d8d;
+    min-height: 100vh;
+    background-color: ;
 }
 
 .registration_form {
@@ -106,17 +114,13 @@ main {
     transition: background-color 0.3s ease-in-out;
 }
 
-.registration_form input[type="submit"]:hover {
-    background-color: #4d8fff;
-}
-
 .registration_form input[type="submit"]:active {
         background-color: #1a6fff;
 }
 
 .login_form {
     position: absolute;
-    top: 40%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
@@ -124,7 +128,7 @@ main {
     align-items: center;
     flex-direction: column;
     width: 400px;
-    height: auto;
+    height: 400px;
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
@@ -165,15 +169,12 @@ main {
     transition: background-color 0.3s ease-in-out;
 }
 
-.login_form input[type="submit"]:hover {
-    background-color: #4d8fff;
-}
+
 
 .login_form input[type="submit"]:active {
         background-color: #1a6fff;
 }
 
-/* .login_form select */
 .login_form select {
     display: block;
     width: 100%;
@@ -189,4 +190,222 @@ main {
 .login_form select:focus {
     outline: none;
     border-color: #7fb4ff;
+}
+
+
+.add_item_form {
+    position: absolute;
+    top: 70%;
+    left: 25%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 400px;
+    height: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.add_item_form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.add_item_form input,
+.add_item_form select {
+    display: block;
+    width: 100%;
+    height: 40px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.add_item_form select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.add_item_form input[type="submit"] {
+    background-color: #7fb4ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.update_item_form {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 400px;
+    height: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+}
+.update_item_form label {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.update_item_form input,
+.update_item_form select {
+    display: block;
+    width: 100%;
+    height: 40px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+}
+.update_item_form input:focus,
+.update_item_form select:focus,
+.add_item_form input:focus,
+.add_item_form select:focus {
+    outline: none;
+    border-color: #7fb4ff;
+}
+.update_item_form input[type="submit"] {
+    background-color: #7fb4ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+
+.update_item_form input[type="submit"]:hover,
+.add_item_form input[type="submit"]:hover,
+.login_form input[type="submit"]:hover,
+.register_form input[type="submit"]:hover {
+    background-color: #4d8fff;
+}
+
+.card {
+    position: relative;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 1rem;
+    margin: 0 1rem;
+    width: 350px;
+    background-color: #ccc;
+}
+  
+.card-img-top {
+    border-radius: 5px 5px 0 0;
+}
+  
+.card-body {
+    font-size: .8rem;
+}
+  
+.card-title {
+    font-size: 1rem;
+    font-weight: bold;
+}
+  
+.card-text {
+    line-height: 1.5;
+}
+
+.vendor_products {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: .2rem;
+    margin: 1rem;
+}
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body::before {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 1px;
+    background-color: black;
+    margin: 0 auto 1rem;
+}
+
+.add_form_hidden,
+.update_form_hidden {
+    display: none;
+}
+
+.add_form_visible,
+.update_form_visible {
+    display: block;
+}
+
+/* .update_form_visible {
+    display: block;
+} */
+
+#add_close_btn,
+#update_close_btn {
+    position: absolute;
+    top: 0;
+    right: 0.2%;
+    margin: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+}
+
+#vendor_delete {
+    position: absolute;
+    bottom: 0;
+    right: 2%;
+    margin: 1rem;
+    cursor: pointer;
+}
+
+/* the buttons in vendor_btns div should be in middle of screen */
+.vendor_btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.vendor_btns button {
+    margin: 1rem;
+    /* style buttons */
+    background-color: #7fb4ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+
 }

@@ -15,15 +15,11 @@
         <input type="text" name="username" id="username" placeholder="Username" required>
         <label for="password">Password</label>
         <input type="password" name="password" id="password" placeholder="Password" required>
-        <label for="user_type">User Type</label>
-        <select name="user_type" id="user_type">
-            <option value="customer">Customer</option>
-            <option value="vendor">Vendor</option>
-            <option value="admin">Admin</option>
         <input type="submit" value="Login">
+        <p><a href="/register">Need an account sign up here</a></p>
     </form>
     {% else %}
-    <h2>You are already logged in!</h2>
+    <h2>User currently logged in logout to change users</h2>
     {% endif %}
 </main>
 {% endblock%}
