@@ -76,21 +76,18 @@
             <div class="card-body">
                 <h5 class="card-title">{{a.title}}</h5>
                 <p class="card-text">Product ID: {{a.product_id}}</p>
-                <p class="card-text">{{a.description}}</p>
+                <p class="card-text">Vendor ID: {{a.vendor_id}}</p>
+                <p class="card-text">Description: {{a.description}}</p>
                 <p class="card-text">Stock status: {{a.stock_status}}</p>
                 <p class="card-text">Inventory: {{a.inventory}}</p>
                 <p class="card-text">Price: ${{a.price}}</p>
-                <p class="card-text">Color: {{a.color}}</p>
+                <p class="card-text">Colors: {{a.color}}</p>
+                <p class="card-text">Sizes: {{a.size}}</p>
                 {% if a.discounted_price is not none and a.discounted_price > 0 %}
                     <p class="card-text">Discount: ${{a.discounted_price}}</p>
                     <p class="card-text">Discount over date: {{a.discount_over_date}}</p>
                 {% else %}
                     <p class="card-text">No discount</p>
-                {% endif %}
-                {% if a.warranty_duration is not none %}
-                    <p class="card-text">Warranty duration: {{a.warranty_duration}}</p>
-                {% else %}
-                    <p class="card-text">No warranty</p>
                 {% endif %}
                 <form action="/delete_item" method="POST">
                     <input type="hidden" name="product_id" value="{{a.product_id}}">
@@ -101,61 +98,40 @@
         {% endfor %}
     </div>
     <form class="add_item_form add_form_hidden" action="/add_item" method="POST">
-        <h3>New Product Form</h3>
+        <h3>Add Item</h3>
         <ion-icon id="add_close_btn" name="close"></ion-icon>
-        <label for="title">Item Title</label>
         <input type="text" name="title" id="title" placeholder="Item Title" required>
-        <label for="description">Item Description</label>
+        <input type="text" name="category" id="category" placeholder="Category" required>
         <input type="text" name="description" id="description" placeholder="Item Description" required>
-        <label for="inventory">Item Inventory</label>
         <input type="number" name="inventory" id="inventory" placeholder="Item Inventory" required>
-        <label for="color">Color</label>
         <input type="text" name="color" id="color" placeholder="Color" required>
-        <label for="product_img">Link For Product Image</label>
+        <input type="text" name="size" id="size" placeholder="Size" required>
         <input type="text" name="product_img" id="product_img" placeholder="Link For Product Image" required>
-        <label for="item_price">Item Price</label>
         <input type="number" step="any" name="price" id="price" placeholder="Item Price" required>
-        <label for="discounted_price">Discounted Price</label>
         <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
-        <label for="discount_over_date">Discount Over Date</label>
         <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
-        <label for="warranty_duration">Warranty Duration</label>
-        <input type="text" name="warranty_duration" id="warranty_duration" placeholder="Warranty Duration">
-        <label for="stock_status">Stock Status</label>
         <select name="stock_status" id="stock_status">
             <option value="in stock">In Stock</option>
             <option value="out of stock">Out of Stock</option>
-            <option value="backorder">Back Order</option>
         <input type="submit" value="Add Item">
     </form>
     <form class="update_item_form update_form_hidden" action="/update_item" method="POST">
         <h3>Update Form</h3>
+        <!-- change form later -->
         <ion-icon id="update_close_btn" name="close"></ion-icon>
-        <label for="product_id">Product ID</label>
         <input type="text" name="product_id" id="product_id" placeholder="Product ID" required>
-        <label for="title">Item Title</label>
-        <input type="text" name="title" id="title" placeholder="Item Title" >
-        <label for="description">Item Description</label>
+        <input type="text" name="title" id="title" placeholder="Item Title">
+        <input type="text" name="category" id="category" placeholder="Category">
         <input type="text" name="description" id="description" placeholder="Item Description">
-        <label for="inventory">Item Inventory</label>
         <input type="number" name="inventory" id="inventory" placeholder="Item Inventory">
-        <label for="color">Color</label>
         <input type="text" name="color" id="color" placeholder="Color">
-        <label for="product_img">Link For Product Image</label>
         <input type="text" name="product_img" id="product_img" placeholder="Link For Product Image">
-        <label for="item_price">Item Price</label>
         <input type="number" step="any" name="price" id="price" placeholder="Item Price">
-        <label for="discounted_price">Discounted Price</label>
         <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
-        <label for="discount_over_date">Discount Over Date</label>
         <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
-        <label for="warranty_duration">Warranty Duration</label>
-        <input type="text" name="warranty_duration" id="warranty_duration" placeholder="Warranty Duration">
-        <label for="stock_status">Stock Status</label>
         <select name="stock_status" id="stock_status">
             <option value="in stock">In Stock</option>
             <option value="out of stock">Out of Stock</option>
-            <option value="backorder">Back Order</option>
         <input type="submit" value="Update Item">
     </form>
 </main>

@@ -52,7 +52,7 @@ main {
     padding-top: 10px;
     width: 100%;
     min-height: 100vh;
-    background-color: ;
+    background-color: lightcyan;
 }
 
 .registration_form {
@@ -364,10 +364,6 @@ main {
     display: block;
 }
 
-/* .update_form_visible {
-    display: block;
-} */
-
 #add_close_btn,
 #update_close_btn {
     position: absolute;
@@ -388,7 +384,6 @@ main {
     cursor: pointer;
 }
 
-/* the buttons in vendor_btns div should be in middle of screen */
 .vendor_btns {
     display: flex;
     justify-content: center;
@@ -397,7 +392,6 @@ main {
 
 .vendor_btns button {
     margin: 1rem;
-    /* style buttons */
     background-color: #7fb4ff;
     color: #fff;
     border: none;
@@ -408,4 +402,12 @@ main {
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 
+}
+
+#colors {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100px;
 }

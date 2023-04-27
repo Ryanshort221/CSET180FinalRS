@@ -91,7 +91,7 @@ def products():
 @app.route('/vendor', methods=['POST', 'GET'])
 def vendor():
     vendor_id = session['user_id']
-    result = conn.execute(text('select * from products where vendor_id = :vendor_id').params(vendor_id=vendor_id))
+    result = conn.execute(text('SELECT p.product_id, p.vendor_id, p.category, p.title, p.description, pv.price, pv.discounted_price, pv.discount_over_date, pv.product_img, pv.color, pv.size, pv.inventory, pv.stock_status from products p inner join product_variants pv on p.product_id = pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
     return render_template('vendor.html', result=result)
 
 
@@ -118,51 +118,42 @@ def add_item():
         stock_status = request.form['stock_status']
         discounted_price = request.form['discounted_price']
         discount_over_date = request.form['discount_over_date']
-        warranty_duration = request.form['warranty_duration']
         color = request.form['color']
         product_img = request.form['product_img']
-        result = conn.execute(text('select * from products where title = :title and vendor_id=:vendor_id').params(title=title, vendor_id=vendor_id))
-        if result.rowcount == 1:
-            return render_template('vendor.html', error='Item already exists', result=result)
-        elif discounted_price == '' and discount_over_date == '' and warranty_duration == '':
-            result = conn.execute(text('insert into products (title, description, price, inventory, vendor_id, stock_status, color, product_img) values(:title, :description, :price, :inventory, :vendor_id, :stock_status, :color, :product_img)').params(title=title, description=description, price=price, inventory=inventory, vendor_id=vendor_id, stock_status=stock_status, color=color, product_img=product_img))
-            conn.commit()
-            flash("Item successfully added")
+        size = request.form['size']
+        category = request.form['category']
+        result = conn.execute(text('select * from products where title=:title and vendor_id=:vendor_id').params(title=title, vendor_id=vendor_id))
+        if result.rowcount >= 1:
+            flash('Item already exists')
             return redirect('vendor')
-        elif discounted_price != '' and discount_over_date != '' and warranty_duration == '':
-            result = conn.execute(text('insert into products (title, description, price, inventory, vendor_id, stock_status, discounted_price, discount_over_date, color, product_img) values(:title, :description, :price, :inventory, :vendor_id, :stock_status, :discounted_price, :discount_over_date, :color, :product_img)').params(title=title, description=description, price=price, inventory=inventory, vendor_id=vendor_id, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date, color=color, product_img=product_img))
+        if discounted_price == '' and discount_over_date == '':
+            result = conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id, category=category, title=title, description=description))
             conn.commit()
-            flash("Item successfully added")
-            return redirect('vendor')
-        elif discounted_price == '' and discount_over_date == '' and warranty_duration != '':
-            result = conn.execute(text('insert into products (title, description, price, inventory, vendor_id, stock_status, warranty_duration, color, product_img) values(:title, :description, :price, :inventory, :vendor_id, :stock_status, :warranty_duration, :color, :product_img)').params(title=title, description=description, price=price, inventory=inventory, vendor_id=vendor_id, stock_status=stock_status, warranty_duration=warranty_duration, color=color, product_img=product_img))
+            product_id = conn.execute(text('select * from products where vendor_id=:vendor_id and title=:title').params(vendor_id=vendor_id, title=title)).fetchone()[0]
+            result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status))
             conn.commit()
-            flash("Item successfully added")
+            flash('Item successfully added')
             return redirect('vendor')
-        elif discounted_price != '' and discount_over_date != '' and warranty_duration != '':
-            result = conn.execute(text('insert into products (title, description, price, inventory, vendor_id, stock_status, discounted_price, discount_over_date, warranty_duration, color, product_img) values(:title, :description, :price, :inventory, :vendor_id, :stock_status, :discounted_price, :discount_over_date, :warranty_duration, :color, :product_img)').params(vendor_id=vendor_id), request.form)
+        if discounted_price != '' and discount_over_date != '':
+            conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id, category=category, title=title, description=description))
+            product_id = conn.execute(text('select * from products where vendor_id=:vendor_id and title=:title').params(vendor_id=vendor_id, title=title)).fetchone()[0]
+            result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date))
             conn.commit()
-            flash("Item successfully added")
+            flash('Item successfully added')
             return redirect('vendor')
-        else:
-            return render_template('vendor.html', error='Invalid input')
     else:
-        return render_template('vendor.html')
+        return redirect('vendor.html')
 
 
 @app.route('/delete_item', methods=['POST', 'GET'])
 def delete_item():
     if request.method == 'POST':
         product_id = request.form['product_id']
-        result = conn.execute(text('delete from products where product_id = :product_id').params(product_id=product_id))
-        # will need to come back and add query to delete from product_color and product_size after implementation
-        if result.rowcount == 1:
-            conn.commit()
-            flash('Your product has been deleted')
-            return redirect('vendor')
-        else:
-            flash("Product doesn't exist try again")
-            return redirect('vendor')
+        conn.execute(text('delete from products where product_id=:product_id').params(product_id=product_id))
+        # come back and update after getting add to work
+        conn.commit()
+        flash('Your product has been deleted')
+        return redirect('vendor')
     else:
         return redirect('vendor')
 
@@ -170,17 +161,13 @@ def delete_item():
 @app.route('/update_item', methods=['POST', 'GET'])
 def update_item():
     if request.method == 'POST':
-        # Get the product ID and vendor ID from the session
         product_id = request.form['product_id']
         vendor_id = session['user_id']
-
-        # Build the update query dynamically based on which form fields were submitted
+        # need to update this to accomodate for product variant as well
         update_fields = {}
-        for field_name in ['title', 'description', 'price', 'inventory', 'stock_status', 'discounted_price', 'discount_over_date', 'warranty_duration', 'color', 'product_img']:
+        for field_name in ['title', 'description', 'price', 'inventory', 'stock_status', 'discounted_price', 'discount_over_date', 'warranty_duration', 'product_img', 'category']:
             if field_name in request.form and request.form[field_name]:
                 update_fields[field_name] = request.form[field_name]
-
-        # Check if the product exists for this vendor
         result = conn.execute(text('select * from products where product_id=:product_id and vendor_id=:vendor_id').params(product_id=product_id, vendor_id=vendor_id))
         if result.rowcount == 0:
             flash("Product doesn't exist, try again.")
@@ -204,7 +191,16 @@ def update_item():
 def vendor_product():
     vendor_id = session['user_id']
     result = conn.execute(text('select * from products where vendor_id = :vendor_id').params(vendor_id=vendor_id))
-    return render_template('vendor', result=result)
+    # change this to cross join for product_color, product_size will be easier to render everything
+    product_id = result.fetchall()[0]
+    product_colors_result = conn.execute(text('select * from product_colors where product_id=:product_id').params(product_id=product_id))
+    product_colors = product_colors_result.fetchall()
+    product_sizes_result = conn.execute(text('select * from product_sizes where product_id=:product_id').params(product_id=product_id))
+    product_sizes = product_sizes_result.fetchall()
+    print(product_colors)
+    print(product_sizes)
+    # come back later figure out why these queries arent executing
+    return render_template('vendor', result=result, product_colors=product_colors, product_sizes=product_sizes)
 
 
 if __name__ == '__main__':
