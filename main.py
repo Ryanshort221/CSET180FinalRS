@@ -89,7 +89,8 @@ def products():
 @app.route('/vendor', methods=['POST', 'GET'])
 def vendor():
     vendor_id = session['user_id']
-    result = conn.execute(text('select p.product_id, p.vendor_id, p.category, p.title, p.description, pv.price, pv.discounted_price, pv.discount_over_date, pv.product_img, pv.color, pv.size, pv.inventory, pv.stock_status, pv.variant_id from products p inner join product_variants pv on p.product_id = pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
+    # result = conn.execute(text('select p.product_id, p.vendor_id, p.category, p.title, p.description, pv.price, pv.discounted_price, pv.discount_over_date, pv.product_img, pv.color, pv.size, pv.inventory, pv.stock_status, pv.variant_id from products p inner join product_variants pv on p.product_id = pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
+    result = conn.execute(text('select * from products natural join product_variants where vendor_id=:vendor_id').params(vendor_id=vendor_id))
     return render_template('vendor.html', result=result)
 
 
@@ -167,9 +168,8 @@ def update_item():
     if request.method == 'POST':
         product_id = request.form['product_id']
         vendor_id = session['user_id']
-        # need to update this to accomodate for product variant as well
         update_fields = {}
-        for field_name in ['title', 'description', 'price', 'inventory', 'stock_status', 'discounted_price', 'discount_over_date', 'warranty_duration', 'product_img', 'category']:
+        for field_name in ['title', 'description', 'category']:
             if field_name in request.form and request.form[field_name]:
                 update_fields[field_name] = request.form[field_name]
         result = conn.execute(text('select * from products where product_id=:product_id and vendor_id=:vendor_id').params(product_id=product_id, vendor_id=vendor_id))
@@ -177,7 +177,6 @@ def update_item():
             flash("Product doesn't exist, try again.")
             return redirect('vendor')
         else:
-            # Update the product with the specified fields
             update_query = 'update products set '
             for field_name, field_value in update_fields.items():
                 update_query += f'{field_name}=:{field_name}, '
@@ -189,6 +188,41 @@ def update_item():
 
     else:
         return redirect('vendor')
+
+
+@app.route('/add_variant', methods=['POST', 'GET'])
+def add_variant():
+    if request.method == 'POST':
+        product_id = request.form['product_id']
+        color = request.form['color']
+        size = request.form['size']
+        result = conn.execute(text('select * from product_variants where product_id=:product_id and color=:color and size=:size').params(product_id=product_id, color=color, size=size))
+        if result.rowcount >= 1:
+            flash('Variant already exists')
+            return redirect('vendor')
+        update_fields = {}
+        for field_name in ['color', 'size', 'inventory', 'price', 'stock_status', 'discounted_price', 'discount_over_date', 'product_img', 'product_id']:
+            if field_name in request.form and request.form[field_name]:
+                update_fields[field_name] = request.form[field_name]
+            update_query = 'insert into product_variants( '
+            for field_name, field_value in update_fields.items():
+                update_query += f'{field_name}, '
+            update_query = update_query.rstrip(', ') + ') values('
+            for field_name, field_value in update_fields.items():
+                update_query += f':{field_name}, '
+            update_query = update_query.rstrip(', ') + ')'
+            result = conn.execute(text(update_query).params(**update_fields))
+            conn.commit()
+            flash('Variant successfully added')
+            return redirect('vendor')
+        # come back later and figure out issue
+    else:
+        return redirect('vendor')
+
+
+@app.route('/update_variant', methods=['POST', 'GET'])
+def update_variant():
+    redirect('vendor')
 
 
 if __name__ == '__main__':

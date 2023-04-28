@@ -95,11 +95,48 @@
                     <input type="hidden" name="product_id" value="{{a.product_id}}">
                     <input id="vendor_delete" type="submit" value="Delete">
                 </form>
-                <form>
-                    <button id="add_variant_btn">Add Variant</button>
-                    <button id="update_variant_btn">Update Variant</button>
-                </form>
+                <button id="add_variant_btn">Add Variant</button>
+                <button id="update_variant_btn">Update Variant</button>
             </div>
+        </div>
+        <div>
+            <form class="add_variant_form_hidden add_variant_form" action="/add_variant" method="POST">
+                <h3>Add Variant</h3>
+                <ion-icon id="add_variant_close_btn" name="close"></ion-icon>
+                <input type="text" name="color" id="color" placeholder="Color">
+                <input type="text" name="size" id="size" placeholder="Size">
+                <input type="text" name="product_img" id="product_img" placeholder="URL for image">
+                <input type="number" name="inventory" id="inventory" placeholder="Inventory">
+                <input type="number" step="any" name="price" id="price" placeholder="Price">
+                <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
+                <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
+                <select name="stock_status" id="stock_status">
+                    <option value="in stock">In Stock</option>
+                    <option value="out of stock">Out of Stock</option>
+                </select>
+                <input type="hidden" name="product_id" value="{{a.product_id}}">
+                <input type="submit" value="Add Variant">
+            </form>
+        </div>
+        <div>
+            <form class="update_variant_form_hidden update_variant_form" action="/update_variant" method="POST">
+                <h3>Update Variant</h3>
+                <ion-icon id="update_variant_close_btn" name="close"></ion-icon>
+                <input type="text" name="color" id="color" placeholder="Color">
+                <input type="text" name="size" id="size" placeholder="Size">
+                <input type="text" name="product_img" id="product_img" placeholder="URL for image">
+                <input type="number" name="inventory" id="inventory" placeholder="Inventory">
+                <input type="number" step="any" name="price" id="price" placeholder="Price">
+                <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
+                <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
+                <select name="stock_status" id="stock_status">
+                    <option value="in stock">In Stock</option>
+                    <option value="out of stock">Out of Stock</option>
+                </select>
+                <input type="hidden" name="variant_id" value="{{a.variant_id}}">
+                <input type="hidden" name="product_id" value="{{a.product_id}}">
+                <input type="submit" value="Update Variant">
+            </form>
         </div>
         {% endfor %}
     </div>
@@ -128,15 +165,6 @@
         <input type="text" name="title" id="title" placeholder="Item Title">
         <input type="text" name="category" id="category" placeholder="Category">
         <input type="text" name="description" id="description" placeholder="Item Description">
-        <!-- <input type="number" name="inventory" id="inventory" placeholder="Item Inventory">
-        <input type="text" name="color" id="color" placeholder="Color">
-        <input type="text" name="product_img" id="product_img" placeholder="Link For Product Image">
-        <input type="number" step="any" name="price" id="price" placeholder="Item Price">
-        <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
-        <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
-        <select name="stock_status" id="stock_status">
-            <option value="in stock">In Stock</option>
-            <option value="out of stock">Out of Stock</option> -->
         <input type="submit" value="Update Item">
     </form>
 </main>
