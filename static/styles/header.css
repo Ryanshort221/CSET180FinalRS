@@ -195,8 +195,8 @@ main {
 
 .add_item_form {
     position: absolute;
-    top: 70%;
-    left: 25%;
+    top: 60%;
+    left: 36.5%;
     transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
@@ -248,8 +248,8 @@ main {
 
 .update_item_form {
     position: absolute;
-    top: 70%;
-    left: 50%;
+    top: 41.5%;
+    left: 58.5%;
     transform: translate(-50%, -60%);
     display: flex;
     justify-content: center;
@@ -368,7 +368,7 @@ main {
 #update_close_btn {
     position: absolute;
     top: 0;
-    right: 0.2%;
+    right: 0%;
     margin: 1rem;
     font-size: 1.5rem;
     cursor: pointer;

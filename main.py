@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, flash
 from sqlalchemy import create_engine, text
 import hashlib
-from decimal import Decimal
-
 
 app = Flask(__name__)
 app.secret_key = 'apple'
@@ -91,7 +89,7 @@ def products():
 @app.route('/vendor', methods=['POST', 'GET'])
 def vendor():
     vendor_id = session['user_id']
-    result = conn.execute(text('SELECT p.product_id, p.vendor_id, p.category, p.title, p.description, pv.price, pv.discounted_price, pv.discount_over_date, pv.product_img, pv.color, pv.size, pv.inventory, pv.stock_status from products p inner join product_variants pv on p.product_id = pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
+    result = conn.execute(text('select p.product_id, p.vendor_id, p.category, p.title, p.description, pv.price, pv.discounted_price, pv.discount_over_date, pv.product_img, pv.color, pv.size, pv.inventory, pv.stock_status, pv.variant_id from products p inner join product_variants pv on p.product_id = pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
     return render_template('vendor.html', result=result)
 
 
@@ -148,10 +146,16 @@ def add_item():
 @app.route('/delete_item', methods=['POST', 'GET'])
 def delete_item():
     if request.method == 'POST':
+        variant_id = request.form['variant_id']
         product_id = request.form['product_id']
-        conn.execute(text('delete from products where product_id=:product_id').params(product_id=product_id))
-        # come back and update after getting add to work
+        conn.execute(text('delete from product_variants where variant_id=:variant_id').params(variant_id=variant_id))
         conn.commit()
+        result = conn.execute(text('select * from product_variants where product_id=:product_id').params(product_id=product_id))
+        if result.rowcount == 0:
+            conn.execute(text('delete from products where product_id=:product_id').params(product_id=product_id))
+            conn.commit()
+            flash('Your product has been deleted')
+            return redirect('vendor')
         flash('Your product has been deleted')
         return redirect('vendor')
     else:
@@ -185,22 +189,6 @@ def update_item():
 
     else:
         return redirect('vendor')
-
-
-@app.route('/vendor_products', methods=['POST', 'GET'])
-def vendor_product():
-    vendor_id = session['user_id']
-    result = conn.execute(text('select * from products where vendor_id = :vendor_id').params(vendor_id=vendor_id))
-    # change this to cross join for product_color, product_size will be easier to render everything
-    product_id = result.fetchall()[0]
-    product_colors_result = conn.execute(text('select * from product_colors where product_id=:product_id').params(product_id=product_id))
-    product_colors = product_colors_result.fetchall()
-    product_sizes_result = conn.execute(text('select * from product_sizes where product_id=:product_id').params(product_id=product_id))
-    product_sizes = product_sizes_result.fetchall()
-    print(product_colors)
-    print(product_sizes)
-    # come back later figure out why these queries arent executing
-    return render_template('vendor', result=result, product_colors=product_colors, product_sizes=product_sizes)
 
 
 if __name__ == '__main__':
