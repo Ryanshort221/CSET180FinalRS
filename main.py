@@ -196,33 +196,65 @@ def add_variant():
         product_id = request.form['product_id']
         color = request.form['color']
         size = request.form['size']
+        price = request.form['price']
+        inventory = request.form['inventory']
+        stock_status = request.form['stock_status']
+        discounted_price = request.form['discounted_price']
+        discount_over_date = request.form['discount_over_date']
+        product_img = request.form['product_img']
         result = conn.execute(text('select * from product_variants where product_id=:product_id and color=:color and size=:size').params(product_id=product_id, color=color, size=size))
         if result.rowcount >= 1:
             flash('Variant already exists')
             return redirect('vendor')
-        update_fields = {}
-        for field_name in ['color', 'size', 'inventory', 'price', 'stock_status', 'discounted_price', 'discount_over_date', 'product_img', 'product_id']:
-            if field_name in request.form and request.form[field_name]:
-                update_fields[field_name] = request.form[field_name]
-            update_query = 'insert into product_variants( '
-            for field_name, field_value in update_fields.items():
-                update_query += f'{field_name}, '
-            update_query = update_query.rstrip(', ') + ') values('
-            for field_name, field_value in update_fields.items():
-                update_query += f':{field_name}, '
-            update_query = update_query.rstrip(', ') + ')'
-            result = conn.execute(text(update_query).params(**update_fields))
+        if discounted_price == '' and discount_over_date == '':
+            conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status))
             conn.commit()
             flash('Variant successfully added')
             return redirect('vendor')
-        # come back later and figure out issue
+        if discounted_price != '' and discount_over_date != '':
+            conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date))
+            conn.commit()
+            flash('Variant successfully added')
+            return redirect('vendor')
+        else:
+            flash('Invalid input')
+            return redirect('vendor')
     else:
         return redirect('vendor')
 
 
 @app.route('/update_variant', methods=['POST', 'GET'])
 def update_variant():
-    redirect('vendor')
+    if request.method == 'POST':
+        variant_id = request.form['variant_id']
+        product_id = request.form['product_id']
+        price = request.form['price']
+        inventory = request.form['inventory']
+        stock_status = request.form['stock_status']
+        discounted_price = request.form['discounted_price']
+        discount_over_date = request.form['discount_over_date']
+        color = request.form['color']
+        product_img = request.form['product_img']
+        size = request.form['size']
+        result = conn.execute(text('select * from product_variants where product_id=:product_id and variant_id=:variant_id').params(product_id=product_id, variant_id=variant_id))
+        if result.rowcount == 0:
+            flash("Variant doesn't exist, try again.")
+            return redirect('vendor')
+        if discounted_price == '' and discount_over_date == '':
+            result = conn.execute(text('update product_variants set price=:price, inventory=:inventory, stock_status=:stock_status, discounted_price=Null, discount_over_date=Null, color=:color, product_img=:product_img, size=:size where variant_id=:variant_id and product_id=product_id').params(price=price, inventory=inventory, stock_status=stock_status, color=color, size=size, product_img=product_img, variant_id=variant_id, product_id=product_id))
+            conn.commit()
+            flash("Variant successfully updated.")
+            return redirect('vendor')
+        elif discounted_price != '' and discount_over_date != '':
+            result = conn.execute(text('update product_variants set price=:price, inventory=:inventory, stock_status=:stock_status, discounted_price=:discounted_price, discount_over_date=:discount_over_date, color=:color, product_img=:product_img, size=:size where variant_id=:variant_id and product_id=product_id').params(price=price, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date, color=color, size=size, product_img=product_img, variant_id=variant_id, product_id=product_id))
+            conn.commit()
+            flash("Variant successfully updated.")
+            return redirect('vendor')
+        else:
+            flash("Variant not updated, try again.")
+            return redirect('vendor')
+    else:
+        return redirect('vendor')
 
 
 if __name__ == '__main__':
