@@ -69,7 +69,7 @@ def login():
                 session['username'] = 'admin'
                 session['user_id'] = user_id
                 flash(f"Admin {username} successfully logged in")
-                return render_template('admin.html', username=username)
+                return redirect('admin')
         flash("Invalid login credentials please try again", 'error')
         return redirect('/')
 
@@ -83,7 +83,8 @@ def logout():
 
 @app.route('/products', methods=['POST', 'GET'])
 def products():
-    return render_template('products.html')
+    result = conn.execute(text('select * from products natural join product_variants'))
+    return render_template('products.html', result=result)
 
 
 @app.route('/vendor', methods=['POST', 'GET'])
@@ -96,7 +97,8 @@ def vendor():
 
 @app.route('/admin', methods=['POST', 'GET'])
 def admin():
-    return render_template('admin.html')
+    result = conn.execute(text('select * from products natural join product_variants'))
+    return render_template('admin.html', result=result)
 
 
 @app.route('/user_profile')
@@ -121,6 +123,10 @@ def add_item():
         product_img = request.form['product_img']
         size = request.form['size']
         category = request.form['category']
+        if session['username'] == 'vendor':
+            vendor_id = session['user_id']
+        else:
+            vendor_id = request.form['vendor_id']
         result = conn.execute(text('select * from products where title=:title and vendor_id=:vendor_id').params(title=title, vendor_id=vendor_id))
         if result.rowcount >= 1:
             flash('Item already exists')
@@ -131,15 +137,23 @@ def add_item():
             product_id = conn.execute(text('select * from products where vendor_id=:vendor_id and title=:title').params(vendor_id=vendor_id, title=title)).fetchone()[0]
             result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status))
             conn.commit()
-            flash('Item successfully added')
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash('Item successfully added')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Item successfully added')
+                return redirect('admin')
         if discounted_price != '' and discount_over_date != '':
             conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id, category=category, title=title, description=description))
             product_id = conn.execute(text('select * from products where vendor_id=:vendor_id and title=:title').params(vendor_id=vendor_id, title=title)).fetchone()[0]
             result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date))
             conn.commit()
-            flash('Item successfully added')
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash('Item successfully added')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Item successfully added')
+                return redirect('admin')
     else:
         return redirect('vendor.html')
 
@@ -155,12 +169,12 @@ def delete_item():
         if result.rowcount == 0:
             conn.execute(text('delete from products where product_id=:product_id').params(product_id=product_id))
             conn.commit()
+        if session['username'] == 'vendor':
             flash('Your product has been deleted')
             return redirect('vendor')
-        flash('Your product has been deleted')
-        return redirect('vendor')
-    else:
-        return redirect('vendor')
+        elif session['username'] == 'admin':
+            flash('Your product has been deleted')
+            return redirect('admin')
 
 
 @app.route('/update_item', methods=['POST', 'GET'])
@@ -172,22 +186,32 @@ def update_item():
         for field_name in ['title', 'description', 'category']:
             if field_name in request.form and request.form[field_name]:
                 update_fields[field_name] = request.form[field_name]
-        result = conn.execute(text('select * from products where product_id=:product_id and vendor_id=:vendor_id').params(product_id=product_id, vendor_id=vendor_id))
+        result = conn.execute(text('select * from products where product_id=:product_id').params(product_id=product_id))
         if result.rowcount == 0:
-            flash("Product doesn't exist, try again.")
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash("Product doesn't exist, try again.")
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash("Product doesn't exist, try again.")
+                return redirect('admin')
         else:
             update_query = 'update products set '
             for field_name, field_value in update_fields.items():
                 update_query += f'{field_name}=:{field_name}, '
-            update_query = update_query.rstrip(', ') + ' where product_id=:product_id and vendor_id=:vendor_id'
-            result = conn.execute(text(update_query).params(**update_fields, product_id=product_id, vendor_id=vendor_id))
+            update_query = update_query.rstrip(', ') + ' where product_id=:product_id'
+            result = conn.execute(text(update_query).params(**update_fields, product_id=product_id))
             conn.commit()
-            flash("Item successfully updated.")
-            return redirect('vendor')
-
+            if session['username'] == 'vendor':
+                flash("Item successfully updated.")
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash("Item successfully updated.")
+                return redirect('admin')
     else:
-        return redirect('vendor')
+        if session['username'] == 'vendor':
+            return redirect('vendor')
+        elif session['username'] == 'admin':
+            return redirect('admin')
 
 
 @app.route('/add_variant', methods=['POST', 'GET'])
@@ -204,23 +228,42 @@ def add_variant():
         product_img = request.form['product_img']
         result = conn.execute(text('select * from product_variants where product_id=:product_id and color=:color and size=:size').params(product_id=product_id, color=color, size=size))
         if result.rowcount >= 1:
-            flash('Variant already exists')
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash('Variant already exists')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Variant already exists')
+                return redirect('admin')
         if discounted_price == '' and discount_over_date == '':
             conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status))
             conn.commit()
-            flash('Variant successfully added')
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash('Variant successfully added')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Variant successfully added')
+                return redirect('admin')
         if discounted_price != '' and discount_over_date != '':
             conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date))
             conn.commit()
-            flash('Variant successfully added')
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash('Variant successfully added')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Variant successfully added')
+                return redirect('admin')
         else:
-            flash('Invalid input')
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash('Invalid input')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Invalid input')
+                return redirect('admin')
     else:
-        return redirect('vendor')
+        if session['username'] == 'vendor':
+            return redirect('vendor')
+        elif session['username'] == 'admin':
+            return redirect('admin')
 
 
 @app.route('/update_variant', methods=['POST', 'GET'])
@@ -238,23 +281,79 @@ def update_variant():
         size = request.form['size']
         result = conn.execute(text('select * from product_variants where product_id=:product_id and variant_id=:variant_id').params(product_id=product_id, variant_id=variant_id))
         if result.rowcount == 0:
-            flash("Variant doesn't exist, try again.")
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash("Variant doesn't exist, try again.")
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash("Variant doesn't exist, try again.")
+                return redirect('admin')
         if discounted_price == '' and discount_over_date == '':
             result = conn.execute(text('update product_variants set price=:price, inventory=:inventory, stock_status=:stock_status, discounted_price=Null, discount_over_date=Null, color=:color, product_img=:product_img, size=:size where variant_id=:variant_id and product_id=product_id').params(price=price, inventory=inventory, stock_status=stock_status, color=color, size=size, product_img=product_img, variant_id=variant_id, product_id=product_id))
             conn.commit()
-            flash("Variant successfully updated.")
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash("Variant successfully updated.")
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash("Variant successfully updated.")
+                return redirect('admin')
         elif discounted_price != '' and discount_over_date != '':
             result = conn.execute(text('update product_variants set price=:price, inventory=:inventory, stock_status=:stock_status, discounted_price=:discounted_price, discount_over_date=:discount_over_date, color=:color, product_img=:product_img, size=:size where variant_id=:variant_id and product_id=product_id').params(price=price, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date, color=color, size=size, product_img=product_img, variant_id=variant_id, product_id=product_id))
             conn.commit()
-            flash("Variant successfully updated.")
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash("Variant successfully updated.")
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash("Variant successfully updated.")
+                return redirect('admin')
         else:
-            flash("Variant not updated, try again.")
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash("Variant not updated, try again.")
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash("Variant not updated, try again.")
+                return redirect('admin')
     else:
-        return redirect('vendor')
+        if session['username'] == 'vendor':
+            return redirect('vendor')
+        elif session['username'] == 'admin':
+            return redirect('admin')
+
+
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    # add check to make sure item is 'in stock' or 'out of stock' before allowing items into cart
+    if 'user_id' in session:
+        user_id = session['user_id']
+        variant_id = request.form['variant_id']
+        quantity = request.form['quantity']
+        result = conn.execute(text('select * from cart where user_id=:user_id and variant_id=:variant_id').params(user_id=user_id, variant_id=variant_id))
+        if result.rowcount == 0:
+            conn.execute(text('insert into cart values(:user_id, :variant_id, :quantity)').params(user_id=user_id, variant_id=variant_id, quantity=quantity))
+            conn.commit()
+            flash('Item added to cart')
+            return redirect('products')
+        else:
+            flash('Item already in cart')
+            return redirect('products')
+    else:
+        flash('Please login first')
+        return redirect('index')
+
+
+@app.route('/cart', methods=['POST', 'GET'])
+def cart():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
+        if result.rowcount == 0:
+            flash('Cart is empty')
+            return redirect('products')
+        else:
+            cart = conn.execute(text('select * from cart natural join product_variants where cart.user_id=user_id'))
+            return render_template('cart.html', cart=cart)
+    else:
+        flash('Please login first')
+        return redirect('index')
 
 
 if __name__ == '__main__':

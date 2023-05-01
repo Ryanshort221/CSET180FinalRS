@@ -1,5 +1,64 @@
-{% extends "base.html" %}
-{% block body%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel= "stylesheet" href= "../static/styles/header.css">
+    <title>Multi-vendor ecommerce website</title>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script defer src="static/js/script.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="header_nav">
+            <div class="header_logo">
+                <img src="static/images/logo-placeholder.png" alt="">
+            </div>
+            <div class="header_title">
+                <h1>The Green Dragon</h1>
+            </div>
+            <div class="header_links">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    {% if session.username is not defined %}
+                    <li><a href="/register">Register</a></li>
+                    {% elif session['username'] == 'admin' %}
+                    <li><a href="/admin">Dashboard</a></li>
+                    <li><a href="/complaints">Complaints</a></li>
+                    <li><a href="/chat">Chat</a></li>
+                    <li>
+                        <form action="/logout" method="POST">
+                            <input type="submit" value="Logout">
+                        </form>
+                    </li>
+                    {% elif session['username'] == 'vendor' %}
+                    <li><a href="/vendor_orders">Orders</a></li>
+                    <li><a href="/vendor">Dashboard</a></li>
+                    <li>
+                        <form action="/logout" method="POST">
+                            <input type="submit" value="Logout">
+                        </form>
+                    </li>
+                    {% else %}
+                    <li><a href="/products">Products</a></li>
+                    <li><a href="/cart">Cart</a></li>
+                    <li><a href="/orders">Orders</a></li>
+                    <li><a href="/return"></a>Return</li>
+                    <li><a href="/chat">Chat</a></li>
+                    <li><a href="/review">Review</a></li>
+                    <li><a href="/user_profile">User Profile</a></li>
+                    <li>
+                        <form action="/logout" method="POST">
+                            <input type="submit" value="Logout">
+                        </form>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </header>
 <main>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -8,5 +67,113 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
+    {{error}}
+    <div class="vendor_btns">
+        <button id="add_form_btn">Add Item</button>
+        <button id="update_form_btn">Update Base Product</button>
+    </div>
+    <div class="vendor_products">
+        {%for a in result.fetchall() %}
+        <div class="card">
+            <img src="{{a.product_img}}" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">{{a.title}}</h5>
+                <p class="card-text">Variant ID: {{a.variant_id}}</p>
+                <p class="card-text">Product ID: {{a.product_id}}</p>
+                <p class="card-text">Vendor ID: {{a.vendor_id}}</p>
+                <p class="card-text">Category: {{a.category}}</p>
+                <p class="card-text">Description: {{a.description}}</p>
+                <p class="card-text">Stock status: {{a.stock_status}}</p>
+                <p class="card-text">Inventory: {{a.inventory}}</p>
+                <p class="card-text">Color: {{a.color}}</p>
+                <p class="card-text">Size: {{a.size}}</p>
+                <p class="card-text">Price: ${{a.price}}</p>
+                {% if a.discounted_price is not none and a.discounted_price > 0 %}
+                    <p class="card-text">Discounted Price: ${{a.discounted_price}}</p>
+                    <p class="card-text">Discount over date: {{a.discount_over_date}}</p>
+                {% else %}
+                    <p class="card-text">No discount</p>
+                {% endif %}
+                <form action="/delete_item" method="POST">
+                    <input type="hidden" name="variant_id" value="{{a.variant_id}}">
+                    <input type="hidden" name="product_id" value="{{a.product_id}}">
+                    <input id="vendor_delete" type="submit" value="Delete">
+                </form>
+                <button class="add_variant_btn">Add Variant</button>
+                <button class="update_variant_btn">Update Variant</button>
+            </div>
+        </div>
+            <form class="add_variant_form add_variant_form_hidden" action="/add_variant" method="POST">
+                <h3>Add Variant</h3>
+                <ion-icon class="add_variant_close_btn" name="close"></ion-icon>
+                <input type="text" name="color" id="color" placeholder="Color" value="" required>
+                <input type="text" name="size" id="size" placeholder="Size" value="" required>
+                <input type="text" name="product_img" id="product_img" placeholder="URL for image" value="{{a.product_img}}" required>
+                <input type="number" name="inventory" id="inventory" placeholder="Inventory" value="{{a.inventory}}" required>
+                <input type="number" step="any" name="price" id="price" placeholder="Price" value="{{a.price}}" required>
+                <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
+                <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
+                <select name="stock_status" id="stock_status">
+                    <option value="in stock">In Stock</option>
+                    <option value="out of stock">Out of Stock</option>
+                </select>
+                <input type="hidden" name="product_id" value="{{a.product_id}}">
+                <input type="submit" value="Add Variant">
+            </form>
+            <form class=" update_variant_form update_variant_form_hidden" action="/update_variant" method="POST">
+                <h3>Update Variant</h3>
+                <ion-icon class="update_variant_close_btn" name="close"></ion-icon>
+                <input type="text" name="color" id="color" placeholder="Color" value="{{a.color}}">
+                <input type="text" name="size" id="size" placeholder="Size" value="{{a.size}}">
+                <input type="text" name="product_img" id="product_img" placeholder="URL for image" value="{{a.product_img}}">
+                <input type="number" name="inventory" id="inventory" placeholder="Inventory" value="{{a.inventory}}">
+                <input type="number" step="any" name="price" id="price" placeholder="Price" value="{{a.price}}">
+                <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price" value="{{a.discounted_price}}">
+                <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
+                <select name="stock_status" id="stock_status">
+                    <option value="in stock">In Stock</option>
+                    <option value="out of stock">Out of Stock</option>
+                </select>
+                <input type="hidden" name="variant_id" value="{{a.variant_id}}">
+                <input type="hidden" name="product_id" value="{{a.product_id}}">
+                <input type="submit" value="Update Variant">
+            </form>
+        {% endfor %}
+    </div>
+    <form class="add_item_form add_form_hidden" action="/add_item" method="POST">
+        <h3>Add Item</h3>
+        <ion-icon id="add_close_btn" name="close"></ion-icon>
+        <input type="text" name="vendor_id" id="vendor_id" placeholder="Vendor id" required>
+        <input type="text" name="title" id="title" placeholder="Item Title" required>
+        <input type="text" name="category" id="category" placeholder="Category" required>
+        <input type="text" name="description" id="description" placeholder="Item Description" required>
+        <input type="number" name="inventory" id="inventory" placeholder="Item Inventory" required>
+        <input type="text" name="color" id="color" placeholder="Color" required>
+        <input type="text" name="size" id="size" placeholder="Size" required>
+        <input type="text" name="product_img" id="product_img" placeholder="Link For Product Image" required>
+        <input type="number" step="any" name="price" id="price" placeholder="Item Price" required>
+        <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
+        <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
+        <select name="stock_status" id="stock_status">
+            <option value="in stock">In Stock</option>
+            <option value="out of stock">Out of Stock</option>
+        <input type="submit" value="Add Item">
+    </form>
+    <form class="update_item_form update_form_hidden" action="/update_item" method="POST">
+        <h3>Update Base Item</h3>
+        <ion-icon id="update_close_btn" name="close"></ion-icon>
+        <input type="text" name="product_id" id="product_id" placeholder="Product ID" required>
+        <input type="text" name="title" id="title" placeholder="Item Title">
+        <input type="text" name="category" id="category" placeholder="Category">
+        <input type="text" name="description" id="description" placeholder="Item Description">
+        <input type="submit" value="Update Item">
+    </form>
 </main>
-{% endblock%}
+    <footer>
+        <nav class="footer_nav">
+            
+        </nav>
+    </footer>
+</body>
+
+</html>

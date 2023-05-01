@@ -8,5 +8,37 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
+    <div class="all_products">
+        {%for a in result.fetchall() %}
+        <div class="card">
+            <img src="{{a.product_img}}" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">{{a.title}}</h5>
+                <p class="card-text">Product ID: {{a.product_id}}</p>
+                <p class="card-text">Variant ID: {{a.variant_id}}</p>
+                <p class="card-text">Vendor ID: {{a.vendor_id}}</p>
+                <p class="card-text">Category: {{a.category}}</p>
+                <p class="card-text">Description: {{a.description}}</p>
+                <p class="card-text">Stock status: {{a.stock_status}}</p>
+                <p class="card-text">Inventory: {{a.inventory}}</p>
+                <p class="card-text">Color: {{a.color}}</p>
+                <p class="card-text">Size: {{a.size}}</p>
+                <p class="card-text">Price: ${{a.price}}</p>
+                {% if a.discounted_price is not none and a.discounted_price > 0 %}
+                    <p class="card-text">Discounted Price: ${{a.discounted_price}}</p>
+                    <p class="card-text">Discount over date: {{a.discount_over_date}}</p>
+                {% else %}
+                {% endif %}
+            </div>
+            <form class="add_to_cart_form" method="POST" action="/add_to_cart">
+                <input type="hidden" name="product_id" value="{{a.product_id}}">
+                <input type="hidden" name="vendor_id" value="{{a.vendor_id}}">
+                <input type="hidden" name="variant_id" value="{{a.variant_id}}">
+                <input type="number" name="quantity" value="1">
+                <input type="submit" value="Add to cart">
+            </form>
+        </div>
+            {% endfor %}
+    </div>
 </main>
 {% endblock%}

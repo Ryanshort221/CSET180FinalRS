@@ -17,7 +17,7 @@
                 <img src="static/images/logo-placeholder.png" alt="">
             </div>
             <div class="header_title">
-                <h1>Wacky Waving Inflatable Arm Emporium</h1>
+                <h1>The Green Dragon</h1>
             </div>
             <div class="header_links">
                 <ul>
@@ -75,6 +75,7 @@
             <img src="{{a.product_img}}" class="card-img-top">
             <div class="card-body">
                 <h5 class="card-title">{{a.title}}</h5>
+                <p class="card-text">Variant ID: {{a.variant_id}}</p>
                 <p class="card-text">Product ID: {{a.product_id}}</p>
                 <p class="card-text">Vendor ID: {{a.vendor_id}}</p>
                 <p class="card-text">Category: {{a.category}}</p>
@@ -172,23 +173,3 @@
 </body>
 
 </html>
-
-
-<!-- <form class="update_item_form update_form_hidden" action="/update_item" method="POST">
-    <h3>Update Form</h3>
-    <ion-icon id="update_close_btn" name="close"></ion-icon>
-    <input type="text" name="product_id" id="product_id" placeholder="Product ID" required>
-    <input type="text" name="title" id="title" placeholder="Item Title">
-    <input type="text" name="category" id="category" placeholder="Category">
-    <input type="text" name="description" id="description" placeholder="Item Description">
-    <input type="number" name="inventory" id="inventory" placeholder="Item Inventory">
-    <input type="text" name="color" id="color" placeholder="Color">
-    <input type="text" name="product_img" id="product_img" placeholder="Link For Product Image">
-    <input type="number" step="any" name="price" id="price" placeholder="Item Price">
-    <input type="number" step="any" name="discounted_price" id="discounted_price" placeholder="Discounted Price">
-    <input type="date" name="discount_over_date" id="discount_over_date" placeholder="Discount Over Date">
-    <select name="stock_status" id="stock_status">
-        <option value="in stock">In Stock</option>
-        <option value="out of stock">Out of Stock</option>
-    <input type="submit" value="Update Item">
-</form> -->
