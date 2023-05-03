@@ -11,11 +11,6 @@ create table users (
     user_type enum('admin', 'vendor', 'customer') not null
 );
 
-select * from users;
-select * from products;
-select * from product_variants;
-select * from products natural join product_variants;
-
 create table products(
 	product_id int primary key auto_increment,
     vendor_id int not null,
@@ -38,3 +33,16 @@ create table product_variants (
     stock_status enum('in stock', 'out of stock') not null,
     foreign key (product_id) references products(product_id)    
 );
+
+create table cart(
+	user_id int not null,
+    variant_id int not null,
+    quantity int not null,
+    foreign key(user_id) references users(user_id),
+    foreign key(variant_id) references product_variants(variant_id)
+);
+
+select * from users;
+select * from products;
+select * from product_variants;
+select * from cart;

@@ -129,8 +129,12 @@ def add_item():
             vendor_id = request.form['vendor_id']
         result = conn.execute(text('select * from products where title=:title and vendor_id=:vendor_id').params(title=title, vendor_id=vendor_id))
         if result.rowcount >= 1:
-            flash('Item already exists')
-            return redirect('vendor')
+            if session['username'] == 'vendor':
+                flash('Item already exists')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Item already exists')
+                return redirect('admin')
         if discounted_price == '' and discount_over_date == '':
             result = conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id, category=category, title=title, description=description))
             conn.commit()
@@ -321,11 +325,14 @@ def update_variant():
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
-    # add check to make sure item is 'in stock' or 'out of stock' before allowing items into cart
     if 'user_id' in session:
         user_id = session['user_id']
         variant_id = request.form['variant_id']
         quantity = request.form['quantity']
+        result = conn.execute(text("select * from product_variants where variant_id=:variant_id and stock_status='in stock'").params(variant_id=variant_id))
+        if result.rowcount == 0:
+            flash('Item out of stock')
+            return redirect('products')
         result = conn.execute(text('select * from cart where user_id=:user_id and variant_id=:variant_id').params(user_id=user_id, variant_id=variant_id))
         if result.rowcount == 0:
             conn.execute(text('insert into cart values(:user_id, :variant_id, :quantity)').params(user_id=user_id, variant_id=variant_id, quantity=quantity))
@@ -346,11 +353,74 @@ def cart():
         user_id = session['user_id']
         result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
         if result.rowcount == 0:
-            flash('Cart is empty')
-            return redirect('products')
-        else:
-            cart = conn.execute(text('select * from cart natural join product_variants where cart.user_id=user_id'))
+            cart = conn.execute(text('select product_variants.price, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
             return render_template('cart.html', cart=cart)
+        else:
+            cart = conn.execute(text('select product_variants.price, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
+            return render_template('cart.html', cart=cart)
+    else:
+        flash('Please login first')
+        return redirect('index')
+
+
+@app.route('/update_cart', methods=['POST', 'GET'])
+def update_cart():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        variant_id = request.form['variant_id']
+        quantity = request.form['quantity']
+        conn.execute(text('update cart set quantity=:quantity where user_id=:user_id and variant_id=:variant_id').params(quantity=quantity, user_id=user_id, variant_id=variant_id))
+        conn.commit()
+        flash('Cart updated')
+        return redirect('cart')
+    else:
+        flash('Please login first')
+        return redirect('index')
+
+
+@app.route('/remove_from_cart', methods=['POST', 'GET'])
+def remove_from_cart():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        variant_id = request.form['variant_id']
+        conn.execute(text('delete from cart where user_id=:user_id and variant_id=:variant_id').params(user_id=user_id, variant_id=variant_id))
+        conn.commit()
+        flash('Item removed from cart')
+        return redirect('cart')
+    else:
+        flash('Please login first')
+        return redirect('index')
+
+
+@app.route('/clear_cart', methods=['POST'])
+def clear_cart():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        result = conn.execute(text('select * from cart where user_id=:user_ud').params(user_id=user_id))
+        if result.rowcount == 0:
+            flash('Cart empty')
+            return redirect('cart')
+        else:
+            conn.execute(text('delete from cart where user_id=:user_id').params(user_id=user_id))
+            conn.commit()
+            flash('Cart cleared')
+            return redirect('cart')
+    else:
+        flash('Please login first')
+        return redirect('index')
+
+
+@app.route('/checkout', methods=['POST', 'GET'])
+def checkout():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
+        if result.rowcount == 0:
+            flash('Cart empty')
+            return redirect('cart')
+        else:
+            cart = conn.execute(text('select product_variants.price, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
+            return render_template('checkout.html', cart=cart)
     else:
         flash('Please login first')
         return redirect('index')

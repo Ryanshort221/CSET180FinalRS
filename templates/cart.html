@@ -1,43 +1,71 @@
 {% extends "base.html" %}
 {% block body %}
 <main>
-    {% for c in cart %}
-    <!-- display cart items change to only show discounted price if there is one else show regular price -->
-    <div class="cart_item">
-        <img src="{{c.product_img}}" class="cart_item_img">
-        <div class="cart_item_info">
-            <h5 class="cart_item_title">{{c.title}}</h5>
-            <p class="cart_item_text">Product ID: {{c.product_id}}</p>
-            <p class="cart_item_text">Variant ID: {{c.variant_id}}</p>
-            <p class="cart_item_text">Vendor ID: {{c.vendor_id}}</p>
-            <p class="cart_item_text">Category: {{c.category}}</p>
-            <p class="cart_item_text">Description: {{c.description}}</p>
-            <p class="cart_item_text">Stock status: {{c.stock_status}}</p>
-            <p class="cart_item_text">Inventory: {{c.inventory}}</p>
-            <p class="cart_item_text">Color: {{c.color}}</p>
-            <p class="cart_item_text">Size: {{c.size}}</p>
-            <p class="cart_item_text">Price: ${{c.price}}</p>
-            {% if c.discounted_price is not none and c.discounted_price > 0 %}
-                <p class="cart_item_text">Discounted Price: ${{c.discounted_price}}</p>
-            {% else %}
-            {% endif %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <h2>{{ message }}</h2>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="cart">
+        <h1>Shopping Cart</h1>
+        <form class="clear_cart_form" method="POST" action="/clear_cart">
+            <input type="submit" value="Clear Cart">
+        {% for c in cart.fetchall() %}
+        <div class="cart_item">
+            <img src="{{c.product_img}}" class="cart_item_img">
+            <div class="cart_item_info">
+                <h5 class="cart_item_title">Title: {{c.title}}</h5>
+                <p class="cart_item_text">Product ID: {{c.product_id}}</p>
+                <p class="cart_item_text">Color: {{c.color}}</p>
+                <p class="cart_item_text">Size: {{c.size}}</p>
+                {% if c.discounted_price is not none and c.discounted_price > 0 %}
+                    <p class="cart_item_text cart_price">Price: ${{c.discounted_price}}</p>
+                {% else %}
+                    <p class="cart_item_text cart_price">Price: ${{c.price}}</p>
+                {% endif %}
+            </div>
+            <div class="cart_item_quantity">
+                <form class="update_cart_form" method="POST" action="/update_cart">
+                    <input type="hidden" name="product_id" value="{{c.product_id}}">
+                    <input type="hidden" name="vendor_id" value="{{c.vendor_id}}">
+                    <input type="hidden" name="variant_id" value="{{c.variant_id}}">
+                    <label for="quantity">QTY:</label>
+                    <input type="number" class="quantityInputs" name="quantity" value="{{c.quantity}}">
+                    <input type="submit" value="Update">
+                </form>
+                <form class="remove_from_cart_form" method="POST" action="/remove_from_cart">
+                    <input type="hidden" name="product_id" value="{{c.product_id}}">
+                    <input type="hidden" name="vendor_id" value="{{c.vendor_id}}">
+                    <input type="hidden" name="variant_id" value="{{c.variant_id}}">
+                    <input type="submit" value="Remove">
+                </form>
+            </div>
         </div>
-        <div class="cart_item_quantity">
-            <form class="update_cart_form" method="POST" action="/update_cart">
-                <input type="hidden" name="product_id" value="{{c.product_id}}">
-                <input type="hidden" name="vendor_id" value="{{c.vendor_id}}">
-                <input type="hidden" name="variant_id" value="{{c.variant_id}}">
-                <input type="number" name="quantity" value="{{c.quantity}}">
-                <input type="submit" value="Update">
-            </form>
-            <form class="remove_from_cart_form" method="POST" action="/remove_from_cart">
-                <input type="hidden" name="product_id" value="{{c.product_id}}">
-                <input type="hidden" name="vendor_id" value="{{c.vendor_id}}">
-                <input type="hidden" name="variant_id" value="{{c.variant_id}}">
-                <input type="submit" value="Remove">
-            </form>
-        </div>
+        {% endfor %}
+        <label for="total">Total</label>
+        <input readonly id="total" value="">
+        <form class="checkout_form" method="POST" action="/checkout">
+            <input type="submit" value="Checkout">
     </div>
-    {% endfor %}
+    <script>
+        const quantityInputs = document.querySelectorAll('.quantityInputs');
+        const total = document.querySelector('#total');
+        const prices = document.querySelectorAll('.cart_price')
+        updateTotal();
+        function updateTotal() {
+            let totalValue = 0;
+            for (let i = 0; i < prices.length; i++) {
+                const price = prices[i].innerText.split('$')[1];
+                const quantity = quantityInputs[i].value;
+                totalValue += price * quantity;
+            }
+            total.value = totalValue.toFixed(2);
+        }
+        quantityInputs.forEach(function(quantityInput) {
+            quantityInput.addEventListener('change', updateTotal);
+        });
+    </script>
 </main>
 {% endblock %}

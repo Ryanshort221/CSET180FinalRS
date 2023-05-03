@@ -9,7 +9,7 @@
     {% endif %}
     {% endwith %}
     <div class="all_products">
-        {%for a in result.fetchall() %}
+        {% for a in result.fetchall() %}
         <div class="card">
             <img src="{{a.product_img}}" class="card-img-top">
             <div class="card-body">
