@@ -443,17 +443,15 @@ main {
     height: 100px;
     padding: 20px;
     background-color: #fff;
-    border-radius: 10px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
-    margin: 1rem 0;
 }
 
 .cart_item img {
     width: 100px;
     height: 100px;
     object-fit: cover;
-    /* border-radius: 50%; */
     border-radius: 10px;
+    padding: 4px;
 }
 
 .cart_item_text {
@@ -474,4 +472,56 @@ main {
 
 }
 
-.cart_item
+.shipping_checkout_form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 400px;
+    height: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.shipping_checkout_form input[type="text"],
+.shipping_checkout_form input[type="email"],
+.shipping_checkout_form input[type="tel"],
+.shipping_checkout_form input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.order_summary {
+    position: absolute;
+    top: 50%;
+    right: 15%;
+    background-color: white;
+    width: 350px;
+}
+
+.order_summary h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+.order_summary h1::after {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 1px;
+    background-color: black;
+    margin: 0 auto 1rem;
+}

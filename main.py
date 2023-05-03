@@ -90,7 +90,6 @@ def products():
 @app.route('/vendor', methods=['POST', 'GET'])
 def vendor():
     vendor_id = session['user_id']
-    # result = conn.execute(text('select p.product_id, p.vendor_id, p.category, p.title, p.description, pv.price, pv.discounted_price, pv.discount_over_date, pv.product_img, pv.color, pv.size, pv.inventory, pv.stock_status, pv.variant_id from products p inner join product_variants pv on p.product_id = pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
     result = conn.execute(text('select * from products natural join product_variants where vendor_id=:vendor_id').params(vendor_id=vendor_id))
     return render_template('vendor.html', result=result)
 
@@ -353,10 +352,10 @@ def cart():
         user_id = session['user_id']
         result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
         if result.rowcount == 0:
-            cart = conn.execute(text('select product_variants.price, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
+            cart = conn.execute(text('select product_variants.price, product_variants.inventory, product_variants.variant_id, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
             return render_template('cart.html', cart=cart)
         else:
-            cart = conn.execute(text('select product_variants.price, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
+            cart = conn.execute(text('select product_variants.price, product_variants.inventory, product_variants.variant_id, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
             return render_template('cart.html', cart=cart)
     else:
         flash('Please login first')
@@ -369,34 +368,34 @@ def update_cart():
         user_id = session['user_id']
         variant_id = request.form['variant_id']
         quantity = request.form['quantity']
-        conn.execute(text('update cart set quantity=:quantity where user_id=:user_id and variant_id=:variant_id').params(quantity=quantity, user_id=user_id, variant_id=variant_id))
-        conn.commit()
-        flash('Cart updated')
-        return redirect('cart')
+        action = request.form['action']
+        if action.startswith('update-'):
+            conn.execute(text('update cart set quantity=:quantity where user_id=:user_id and variant_id=:variant_id').params(quantity=quantity, user_id=user_id, variant_id=variant_id))
+            conn.commit()
+            flash('Cart updated')
+            return redirect('cart')
+        elif action.startswith('remove-'):
+            conn.execute(text('delete from cart where user_id=:user_id and variant_id=:variant_id').params(user_id=user_id, variant_id=variant_id))
+            conn.commit()
+            flash('Item removed from cart')
+            return redirect('cart')
+        elif action == 'checkout':
+            result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
+            if result.rowcount == 0:
+                flash('Cart empty')
+                return redirect('cart')
+            else:
+                return redirect('checkout')
     else:
         flash('Please login first')
         return redirect('index')
 
 
-@app.route('/remove_from_cart', methods=['POST', 'GET'])
-def remove_from_cart():
-    if 'user_id' in session:
-        user_id = session['user_id']
-        variant_id = request.form['variant_id']
-        conn.execute(text('delete from cart where user_id=:user_id and variant_id=:variant_id').params(user_id=user_id, variant_id=variant_id))
-        conn.commit()
-        flash('Item removed from cart')
-        return redirect('cart')
-    else:
-        flash('Please login first')
-        return redirect('index')
-
-
-@app.route('/clear_cart', methods=['POST'])
+@app.route('/clear_cart', methods=['POST', 'GET'])
 def clear_cart():
     if 'user_id' in session:
         user_id = session['user_id']
-        result = conn.execute(text('select * from cart where user_id=:user_ud').params(user_id=user_id))
+        result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
         if result.rowcount == 0:
             flash('Cart empty')
             return redirect('cart')
@@ -408,22 +407,11 @@ def clear_cart():
     else:
         flash('Please login first')
         return redirect('index')
-
+    
 
 @app.route('/checkout', methods=['POST', 'GET'])
 def checkout():
-    if 'user_id' in session:
-        user_id = session['user_id']
-        result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
-        if result.rowcount == 0:
-            flash('Cart empty')
-            return redirect('cart')
-        else:
-            cart = conn.execute(text('select product_variants.price, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
-            return render_template('checkout.html', cart=cart)
-    else:
-        flash('Please login first')
-        return redirect('index')
+    return render_template('checkout.html')
 
 
 if __name__ == '__main__':
