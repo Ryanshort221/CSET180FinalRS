@@ -8,9 +8,10 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <div class="shipping_container">
-        <form method="POST" action="" class="shipping_checkout_form">
+<div class="shipping_container">
+        <form method="POST" action="/checkout" class="shipping_checkout_form shipping_checkout_form_visible">
         <h1>Shipping</h1>
+        {% if shipping_address.rowcount == 0 %}
         <label for="name">Name</label>
         <input type="text" id="name" name="name" value="" required>
         <label for="address">Address</label>
@@ -25,14 +26,57 @@
         <input type="tel" id="phone_number" name="phone_number" value="" required>
         <label for="country">Country</label>
         <input type="text" id="country" name="country" value="" required>
-        <label for="is_default">Make default shipping address</label>
-        <select name="is_default" id="">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-        </select>
         <input type="submit" value="Continue">
+        {% else %}
+        {% for s in shipping_address %}
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="{{s.name}}" required readonly>
+        <label for="address">Address</label>
+        <input type="text" id="street_address" name="street_address" value="{{s.street_address}}" required readonly>
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" value="{{s.city}}" required readonly>
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" value="{{s.state}}" required readonly>
+        <label for="zip_code">Zip Code</label>
+        <input type="text" id="zip_code" name="zip_code" value="{{s.zip_code}}" required readonly>
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone_number" name="phone_number" value="{{s.phone_number}}" required readonly>
+        <label for="country">Country</label>
+        <input type="text" id="country" name="country" value="{{s.country}}" required readonly>
+        <input type="text" name="address_id" id="address_id" hidden value="{{s.address_id}}">
+        <input type="submit" value="Continue">
+        {% endfor %}
+        {% endif %}
+        <div class="btn_shipping">
+            <button id="show_new_shipping">Use new address</button>
+        </div>
     </form>
-    </div>
+</div>
+
+<div class="shipping_container">
+    <form class="new_address_shipping_form new_address_shipping_form_hidden" method="POST" action="/new_address">
+        <h1>New Address</h1>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="" required>
+        <label for="address">Address</label>
+        <input type="text" id="street_address" name="street_address" value="" required>
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" value="" required>
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" value="" required>
+        <label for="zip_code">Zip Code</label>
+        <input type="text" id="zip_code" name="zip_code" value="" required>
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone_number" name="phone_number" value="" required>
+        <label for="country">Country</label>
+        <input type="text" id="country" name="country" value="" required>
+        <input type="submit" value="Continue">
+        <div class="btn_shipping">
+            <button id="show_default_shipping">Use default address</button>
+        </div>
+    </form>
+   
+</div>
     <div class="order_summary">
         <h1>Order Summary</h1>
         <div class="order_summary_container">
@@ -55,12 +99,37 @@
     </div>
 </main>
 <script>
-    total = 0;
-    prices = document.getElementsByClassName("order_summary_price");
-    for (var i = 0; i < prices.length; i++) {
-        total += parseFloat(prices[i].innerHTML.split(": ")[1]);
-    }
-    // document.getElementsByClassName("total")[0].value += total.toFixed(2);
-    document.getElementsByClassName("total")[0].innerHTML += "Total: $ " + total.toFixed(2);
+total = 0;
+prices = document.getElementsByClassName("order_summary_price");
+for (var i = 0; i < prices.length; i++) {
+    total += parseFloat(prices[i].innerHTML.split(": ")[1]);
+}
+document.getElementsByClassName("total")[0].innerHTML += "Total: $ " + total.toFixed(2);
+
+const defaultAddressForm = document.querySelector('.shipping_checkout_form');
+const newAddressForm = document.querySelector('.new_address_shipping_form');
+const defaultForm = document.querySelector('.shipping_checkout_form');
+const newForm = document.querySelector('.new_address_shipping_form');
+const showDefaultBtn = document.querySelector('#show_default_shipping');
+const showNewBtn = document.querySelector('#show_new_shipping');
+
+
+showDefaultBtn.addEventListener('click', () => {
+    event.preventDefault();
+    defaultForm.classList.add('shipping_checkout_form_visible');
+    defaultForm.classList.remove('shipping_checkout_form_hidden');
+    newForm.classList.add('new_address_shipping_form_hidden');
+    newForm.classList.remove('new_address_shipping_form_visible');
+});
+
+showNewBtn.addEventListener('click', () => {
+    event.preventDefault();
+    defaultForm.classList.add('shipping_checkout_form_hidden');
+    defaultForm.classList.remove('shipping_checkout_form_visible');
+    newForm.classList.add('new_address_shipping_form_visible');
+    newForm.classList.remove('new_address_shipping_form_hidden');
+});
+
 </script>
+
 {% endblock %}

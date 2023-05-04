@@ -104,8 +104,10 @@ def admin():
 @app.route('/user_profile')
 def profile():
     username = session['username']
+    user_id = session['user_id']
     result = conn.execute(text('select username, first_name, last_name, email, user_type from users where username=:username ').params(username=username))
-    return render_template('user_profile.html', result=result)
+    address = conn.execute(text('select * from shipping_address where user_id=:user_id').params(user_id=user_id))
+    return render_template('user_profile.html', result=result, address=address)
 
 
 @app.route('/add_item', methods=['POST', 'GET'])
@@ -408,29 +410,77 @@ def clear_cart():
     else:
         flash('Please login first')
         return redirect('index')
-    
+
 
 @app.route('/checkout', methods=['POST', 'GET'])
 def checkout():
-    user_id = session['user_id']
     if request.method == 'GET':
-        cart = conn.execute(text('select product_variants.price, product_variants.inventory, product_variants.variant_id, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
-        return render_template('checkout.html', cart=cart)
-    elif request.method == 'POST':
-        result = conn.execute(text('select * from shipping_address where street_address=:street_address and city=:city and zip_code=:zip_code'), request.form)
-        if result.rowcount >= 1:
-            flash('Address already exists')
-            return redirect('checkout')
+        user_id = session['user_id']
+        result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
+        if result.rowcount == 0:
+            flash('Cart empty')
+            return redirect('cart')
         else:
-            user_id = session['user_id']
-            conn.execute(text('insert into shipping_address (user_id, name, phone_number, street_address, city, state, zip_code, country, is_default) values (:user_id, :name, :phone_number, :street_address, :city, :state, :zip_code, :country, :is_default)').params(user_id=user_id), request.form)
+            cart = conn.execute(text('select product_variants.price, product_variants.inventory, product_variants.variant_id, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
+            shipping_address = conn.execute(text('select * from shipping_address where user_id=:user_id and is_default="Yes"').params(user_id=user_id))
+            return render_template('checkout.html', cart=cart, shipping_address=shipping_address)
+    elif request.method == 'POST':
+        user_id = session['user_id']
+        name = request.form['name']
+        street_address = request.form['street_address']
+        city = request.form['city']
+        state = request.form['state']
+        zip_code = request.form['zip_code']
+        phone_number = request.form['phone_number']
+        country = request.form['country']
+        result = conn.execute(text('select * from shipping_address where user_id=:user_id and is_default="Yes"').params(user_id=user_id))
+        if result.rowcount == 1:
+            conn.execute(text('insert into shipping_address(user_id, name, street_address, city, state, zip_code, phone_number, country) values (:user_id, :name, :street_address, :city, :state, :zip_code, :phone_number, :country)').params(user_id=user_id, name=name, street_address=street_address, city=city, state=state, zip_code=zip_code, phone_number=phone_number, country=country))
+            conn.commit()
+            result = conn.execute(text('select address_id from shipping_address where user_id=:user_id and name=:name and street_address=:street_address and city=:city and state=:state and zip_code=:zip_code and phone_number=:phone_number and country=:country').params(user_id=user_id, name=name, street_address=street_address, city=city, state=state, zip_code=zip_code, phone_number=phone_number, country=country))
+            address_id = result.fetchone()[0]
+            conn.execute(text('insert into orders(user_id, address_id) values (:user_id, :address_id)').params(user_id=user_id, address_id=address_id))
+            conn.commit()
+            return redirect('payment')
+        else:
+            conn.execute(text('insert into shipping_address(user_id, name, street_address, city, state, zip_code, phone_number, country, is_default) values (:user_id, :name, :street_address, :city, :state, :zip_code, :phone_number, :country, "Yes")').params(user_id=user_id, name=name, street_address=street_address, city=city, state=state, zip_code=zip_code, phone_number=phone_number, country=country))
+            conn.commit()
+            result = conn.execute(text('select address_id from shipping_address where user_id=:user_id and name=:name and street_address=:street_address and city=:city and state=:state and zip_code=:zip_code and phone_number=:phone_number and country=:country').params(user_id=user_id, name=name, street_address=street_address, city=city, state=state, zip_code=zip_code, phone_number=phone_number, country=country))
+            address_id = result.fetchone()[0]
+            conn.execute(text('insert into orders(user_id, address_id) values (:user_id, :address_id)').params(user_id=user_id, address_id=address_id))
             conn.commit()
             return redirect('payment')
 
 
+@app.route('/new_address', methods=['POST', 'GET'])
+def new_address():
+    if request.method == 'POST':
+        user_id = session['user_id']
+        name = request.form['name']
+        street_address = request.form['street_address']
+        city = request.form['city']
+        state = request.form['state']
+        zip_code = request.form['zip_code']
+        phone_number = request.form['phone_number']
+        country = request.form['country']
+        conn.execute(text('insert into shipping_address(user_id, name, street_address, city, state, zip_code, phone_number, country) values (:user_id, :name, :street_address, :city, :state, :zip_code, :phone_number, :country)').params(user_id=user_id, name=name, street_address=street_address, city=city, state=state, zip_code=zip_code, phone_number=phone_number, country=country))
+        conn.commit()
+        address_id = conn.execute(text('select last_insert_id()')).fetchone()[0]
+        conn.execute(text('insert into orders(user_id, address_id) values (:user_id, :address_id)').params(user_id=user_id, address_id=address_id))
+        conn.commit()
+        return redirect('payment')
+        return redirect('payment')
+
+
 @app.route('/payment', methods=['POST', 'GET'])
 def payment():
-    return render_template('payment.html')
+    if request.method == 'GET':
+        user_id = session['user_id']
+        cart = conn.execute(text('select product_variants.price, product_variants.inventory, product_variants.variant_id, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
+        shipping_address = conn.execute(text('select * from shipping_address where user_id=:user_id').params(user_id=user_id))
+        return render_template('payment.html', cart=cart, shipping_address=shipping_address)
+    elif request.method == 'POST':
+        user_id = session['user_id']
 
 
 if __name__ == '__main__':

@@ -9,6 +9,45 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
+    <form method="POST" action="/payment" class="payment_form">
+        <h1>Payment</h1>
+        <input type="text" name="card_name" placeholder="Name on card" required>
+        <input type="text" name="card_number" placeholder="Card number" required>
+        <input type="text" name="card_expiry" placeholder="MM/YY" required>
+        <input type="text" name="card_cvv" placeholder="CVV" required>
+        <input type="text" name="card_zip" placeholder="Zip code" required>
+        <input type="text"  name="total" class="total" value="{{total}}">
+        <input type="submit" value="Submit Payment">
+    </form>
+    <div class="order_summary">
+        <h1>Order Summary</h1>
+        <div class="order_summary_container">
+            {% for c in cart %}
+            <div class="order_summary_item">
+                <h5 class="order_summary_title">Title: {{c.title}} </h5>
+                <p class="order_summary_text">Product ID: {{c.product_id}} </p>
+                <p class="order_summary_text">Color: {{c.color}}</p>
+                <p class="order_summary_text">Size: {{c.size}}</p>
+                {% if c.discounted_price is not none and c.discounted_price > 0 %}
+                <p class="order_summary_text order_summary_price">Price: {{c.discounted_price*c.quantity}}</p>
+                {% else %}
+                <p class="order_summary_text order_summary_price">Price: {{c.price*c.quantity}}</p>
+                {% endif %}
+                <p class="order_summary_text">Quantity: {{c.quantity}}</p>
+                {% endfor %}
+            </div class="order_summary_total">
+                <p class="total"></p>
+        </div>
+    </div>
+<script>
+    total = 0;
+    prices = document.getElementsByClassName("order_summary_price");
+    for (var i = 0; i < prices.length; i++) {
+        total += parseFloat(prices[i].innerHTML.split(": ")[1]);
+    }
+    document.getElementsByClassName("total")[0].value += "$" + total.toFixed(2);
+    document.getElementsByClassName("total")[1].innerHTML += "Total: $ " + total.toFixed(2);
+</script>
 </main>
 
 {% endblock %}
