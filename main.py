@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, flash
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import IntegrityError
 import hashlib
 
 app = Flask(__name__)
@@ -411,7 +412,25 @@ def clear_cart():
 
 @app.route('/checkout', methods=['POST', 'GET'])
 def checkout():
-    return render_template('checkout.html')
+    user_id = session['user_id']
+    if request.method == 'GET':
+        cart = conn.execute(text('select product_variants.price, product_variants.inventory, product_variants.variant_id, cart.quantity, product_variants.discounted_price, product_variants.product_img, product_variants.color, product_variants.size, products.title, products.category, products.description, products.product_id from cart join product_variants on cart.variant_id = product_variants.variant_id join products on product_variants.product_id = products.product_id where cart.user_id = :user_id;').params(user_id=user_id))
+        return render_template('checkout.html', cart=cart)
+    elif request.method == 'POST':
+        result = conn.execute(text('select * from shipping_address where street_address=:street_address and city=:city and zip_code=:zip_code'), request.form)
+        if result.rowcount >= 1:
+            flash('Address already exists')
+            return redirect('checkout')
+        else:
+            user_id = session['user_id']
+            conn.execute(text('insert into shipping_address (user_id, name, phone_number, street_address, city, state, zip_code, country, is_default) values (:user_id, :name, :phone_number, :street_address, :city, :state, :zip_code, :country, :is_default)').params(user_id=user_id), request.form)
+            conn.commit()
+            return redirect('payment')
+
+
+@app.route('/payment', methods=['POST', 'GET'])
+def payment():
+    return render_template('payment.html')
 
 
 if __name__ == '__main__':
