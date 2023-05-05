@@ -429,6 +429,7 @@ def checkout():
             shipping_address = conn.execute(text('select * from shipping_address where user_id=:user_id and is_default="Yes"').params(user_id=user_id))
             return render_template('checkout.html', cart=cart, shipping_address=shipping_address)
     elif request.method == 'POST':
+        # add check to see if address already saved if so just grab address_id and send to payment
         user_id = session['user_id']
         name = request.form['name']
         street_address = request.form['street_address']
@@ -473,7 +474,6 @@ def new_address():
         conn.execute(text('insert into orders(user_id, address_id) values (:user_id, :address_id)').params(user_id=user_id, address_id=address_id))
         conn.commit()
         return redirect('payment')
-        return redirect('payment')
 
 
 @app.route('/payment', methods=['POST', 'GET'])
@@ -486,7 +486,6 @@ def payment():
     elif request.method == 'POST':
         user_id = session['user_id']
         total = request.form['total']
-        # split at $
         total = total.split('$')[1]
         conn.execute(text('update orders set total=:total, order_date=curdate(), status="pending" where user_id=:user_id').params(total=total, user_id=user_id))
         conn.commit()
