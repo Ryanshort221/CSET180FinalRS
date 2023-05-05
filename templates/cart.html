@@ -29,7 +29,7 @@
                     {% endif %}
                 </div>
                 <div class="cart_item_quantity">
-                    <input type="hidden" name="variant_id" value="{{c.variant_id}}">
+                    <input type="text" name="variant_id" value="{{c.variant_id}}">
                     <label for="quantity">QTY:</label>
                     <input type="number" class="quantityInputs" name="quantity" min="1" max="{{c.inventory}}" value="{{c.quantity}}">
                     <button type="submit" name="action" value="update-{{c.variant_id}}">Update</button>

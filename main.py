@@ -378,10 +378,14 @@ def update_cart():
             flash('Cart updated')
             return redirect('cart')
         elif action.startswith('remove-'):
-            conn.execute(text('delete from cart where user_id=:user_id and variant_id=:variant_id').params(user_id=user_id, variant_id=variant_id))
-            conn.commit()
-            flash('Item removed from cart')
-            return redirect('cart')
+            variant_id = action.split('-')[1]
+            cart = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
+            for c in cart.fetchall():
+                if str(c.variant_id) == variant_id:
+                    conn.execute(text('delete from cart where user_id=:user_id and variant_id=:variant_id').params(user_id=user_id, variant_id=variant_id))
+                    conn.commit()
+                    flash('Item removed from cart')
+                    return redirect('cart')
         elif action == 'checkout':
             result = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
             if result.rowcount == 0:
@@ -481,6 +485,21 @@ def payment():
         return render_template('payment.html', cart=cart, shipping_address=shipping_address)
     elif request.method == 'POST':
         user_id = session['user_id']
+        total = request.form['total']
+        # split at $
+        total = total.split('$')[1]
+        conn.execute(text('update orders set total=:total, order_date=curdate(), status="pending" where user_id=:user_id').params(total=total, user_id=user_id))
+        conn.commit()
+        order = conn.execute(text('select * from orders where user_id=:user_id order by order_id desc limit 1').params(user_id=user_id)).fetchone()
+        order_id = order[0]
+        cart = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
+        # need to grab all items from cart insert into order_items w/order_id and variant_id's
+        # will also need to subtract the quantities from product_variants after order is placed
+        for item in cart:
+            conn.execute(text('insert into order_items(order_id, variant_id) values (:order_id, :variant_id)').params(order_id=order_id, variant_id=item[1]))
+            conn.commit()
+            flash('Your order has successfully been placed to view the status of your order navigate to "My Orders" page')
+        return redirect('/')
 
 
 if __name__ == '__main__':
