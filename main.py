@@ -429,7 +429,6 @@ def checkout():
             shipping_address = conn.execute(text('select * from shipping_address where user_id=:user_id and is_default="Yes"').params(user_id=user_id))
             return render_template('checkout.html', cart=cart, shipping_address=shipping_address)
     elif request.method == 'POST':
-        # add check to see if address already saved if so just grab address_id and send to payment
         user_id = session['user_id']
         name = request.form['name']
         street_address = request.form['street_address']
@@ -438,6 +437,12 @@ def checkout():
         zip_code = request.form['zip_code']
         phone_number = request.form['phone_number']
         country = request.form['country']
+        result = conn.execute(text('select address_id from shipping_address where user_id=:user_id and name=:name and street_address=:street_address and city=:city and state=:state and zip_code=:zip_code and phone_number=:phone_number and country=:country').params(user_id=user_id), request.form)
+        if result.rowcount == 1:
+            address_id = result.fetchone()[0]
+            conn.execute(text('insert into orders (user_id, address_id) values(:user_id, :address_id)').params(user_id=user_id, address_id=address_id))
+            conn.commit()
+            return redirect('payment')
         result = conn.execute(text('select * from shipping_address where user_id=:user_id and is_default="Yes"').params(user_id=user_id))
         if result.rowcount == 1:
             conn.execute(text('insert into shipping_address(user_id, name, street_address, city, state, zip_code, phone_number, country) values (:user_id, :name, :street_address, :city, :state, :zip_code, :phone_number, :country)').params(user_id=user_id, name=name, street_address=street_address, city=city, state=state, zip_code=zip_code, phone_number=phone_number, country=country))
@@ -487,18 +492,44 @@ def payment():
         user_id = session['user_id']
         total = request.form['total']
         total = total.split('$')[1]
-        conn.execute(text('update orders set total=:total, order_date=curdate(), status="pending" where user_id=:user_id').params(total=total, user_id=user_id))
+        conn.execute(text('update orders set total=:total, order_date=curdate(), status="pending" where user_id=:user_id order by order_id desc limit 1').params(total=total, user_id=user_id))
         conn.commit()
         order = conn.execute(text('select * from orders where user_id=:user_id order by order_id desc limit 1').params(user_id=user_id)).fetchone()
         order_id = order[0]
         cart = conn.execute(text('select * from cart where user_id=:user_id').params(user_id=user_id))
-        # need to grab all items from cart insert into order_items w/order_id and variant_id's
-        # will also need to subtract the quantities from product_variants after order is placed
         for item in cart:
-            conn.execute(text('insert into order_items(order_id, variant_id) values (:order_id, :variant_id)').params(order_id=order_id, variant_id=item[1]))
+            conn.execute(text('insert into order_items(order_id, variant_id, quantity) values (:order_id, :variant_id, :quantity)').params(order_id=order_id, variant_id=item[1], quantity=item[2]))
             conn.commit()
-            flash('Your order has successfully been placed to view the status of your order navigate to "My Orders" page')
-        return redirect('/')
+            flash('Your order has successfully been placed')
+        # will also need to subtract the quantities from product_variants after order is placed and if inventory=0 set stock_status to out of stock otherwise just update inventory-quantity
+        conn.execute(text('delete from cart where user_id=:user_id').params(user_id=user_id))
+        conn.commit()
+        return redirect('orders')
+
+
+@app.route('/orders', methods=['POST', 'GET'])
+def orders():
+    if request.method == 'GET':
+        if 'user_id' in session:
+            user_id = session['user_id']
+            if session['username'] != 'admin' or 'vendor':
+                orders = conn.execute(text('select * from orders where user_id=:user_id order by order_id').params(user_id=user_id)).fetchall()
+                products = []
+                for order in orders:
+                    order_products = conn.execute(text('select o.order_id, oi.quantity, oi.order_id, oi.variant_id, p.product_id, p.title, p.vendor_id, pv.product_img, pv.size, pv.color, pv.price, pv.discounted_price from orders o join order_items oi on o.order_id = oi.order_id join product_variants pv on oi.variant_id = pv.variant_id join products p on pv.product_id = p.product_id where o.user_id =:user_id and oi.order_id=:order_id order by oi.order_id').params(user_id=user_id, order_id=order.order_id)).fetchall()
+                    products.extend(order_products)
+                return render_template('orders.html', orders=orders, products=products)
+
+
+@app.route('/vendor_orders', methods=['POST', 'GET'])
+def vendor_orders():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        if session['username'] == 'vendor':
+            orders = conn.execute(text('select o.order_id, o.status, o.order_date, o.total, p.vendor_id from orders o join order_items oi on o.order_id=oi.order_id join product_variants pv on oi.variant_id=pv.variant_id join products p on pv.product_id = p.product_id where p.vendor_id =:user_id group by o.order_id').params(user_id=user_id).params(user_id=user_id))
+            products = []
+            products = conn.execute(text('select o.order_id, oi.quantity, oi.order_id, oi.variant_id, p.product_id, p.title, p.vendor_id, pv.product_img, pv.size, pv.color, pv.price, pv.discounted_price from orders o join order_items oi on o.order_id = oi.order_id join product_variants pv on oi.variant_id = pv.variant_id join products p on pv.product_id = p.product_id where p.vendor_id =:user_id order by oi.order_id').params(user_id=user_id)).fetchall()
+            return render_template('vendor_orders.html', orders=orders, products=products)
 
 
 if __name__ == '__main__':

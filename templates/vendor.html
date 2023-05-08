@@ -91,10 +91,10 @@
                 {% else %}
                     <p class="card-text">No discount</p>
                 {% endif %}
-                <form action="/delete_item" method="POST">
+                <form class="vendor_delete_form" action="/delete_item" method="POST">
                     <input type="hidden" name="variant_id" value="{{a.variant_id}}">
                     <input type="hidden" name="product_id" value="{{a.product_id}}">
-                    <input id="vendor_delete" type="submit" value="Delete">
+                    <input class="vendor_delete_btn" id="vendor_delete" type="submit" value="Delete">
                 </form>
                 <button class="add_variant_btn">Add Variant</button>
                 <button class="update_variant_btn">Update Variant</button>

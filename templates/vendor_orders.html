@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block body %}
+<main>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <h2>{{ message }}</h2>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <h1>vendor orders</h1>
+    {% for order in orders %}
+    <div class="order">
+      <div class="order_info">
+        <p>Order ID: {{ order.order_id }}</p>
+        <p>Order Date: {{ order.order_date }}</p>
+        <p>Total: {{ order.total }}</p>
+        <p>Status: {{ order.status }}</p>
+      </div>
+      <div class="products">
+        {% for product in products %}
+          {% if product.order_id == order.order_id %}
+            <div class="product">
+                <img src="{{ product.product_img }}" alt="{{ product.title }}">
+                <div class="product_details">
+                    <p>{{ product.title }}</p>
+                    <p>Size: {{ product.size }}</p>
+                    <p>Color: {{ product.color }}</p>
+                    {% if product.discounted_price is not none and product.discounted_price > 0 %}
+                    <p class="product_price">Price: ${{product.discounted_price}}</p>
+                    {% else %}
+                    <p class="product_price">Price: ${{product.price}}</p>
+                    {% endif %}
+                    <p class="product_quantity">Quantity: {{ product.quantity }}</p>
+                </div>
+                <div class="order_btns">
+                    <button class="complaint_btn">Complaints</button>
+                </div>
+                {% if product.complaint != 0 %}
+                    <form action="/complaint" class="complaint_form" method="POST">
+                        <h2>Complaint</h2>
+                        <ion-icon class="complaint_form_close_btn" name="close"></ion-icon>
+                        <input type="hidden" name="variant_id" value="{{ product.variant_id }}">
+                        <input type="hidden" name="user_id" value="{{ product.user_id }}">
+                        <input type="hidden" name="order_id" value="{{product.order_id}}">
+                        <label for="title">Title</label>
+                        <input name="title"></input>
+                        <label for="description">Description</label>
+                        <input name="description"></input>
+                        <label for="demand">Demand</label>
+                        <select name="demand" id="demand">
+                            <option value="refund">Refund</option>
+                            <option value="return">Return</option>
+                        </select>
+                    </form>
+                {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</main>
+{% endblock %}

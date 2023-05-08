@@ -4,6 +4,7 @@
     box-sizing: border-box;
 }
 
+
 header nav {
     display: flex;
     justify-content: space-between;
@@ -52,7 +53,10 @@ main {
     padding-top: 10px;
     width: 100%;
     min-height: 100vh;
-    background-color: lightcyan;
+    /* background-image: url("/static/images/green_dragon.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center; */
 }
 
 .registration_form {
@@ -99,6 +103,28 @@ main {
     padding: 10px 20px;
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
+}
+
+.add_variant_btn {
+    position: absolute;
+    bottom: 0;
+    right: 30%;
+}
+
+.update_variant_btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.vendor_delete_form {
+    /* position: absolute; */
+}
+
+.vendor_delete_form input[type="submit"] {
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
 
 
@@ -615,5 +641,155 @@ main {
     transition: border-color 0.3s ease-in-out;
 }
 
+.order_forms {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 400px;
+    height: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.order img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    padding: 4px;
+}
+
+.order {
+    background-color: #f7f7f7;
+    border: 1px solid #8c6f6f;
+    border-radius: 10px;
+    margin: 20px auto;
+    padding: 20px;
+    width: 50%;
+}
+  
+.order_info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px; 
+}
+  
+.order_info p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.products {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
 
+.product {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.product img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    padding: 4px;
+}
+
+.product_details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-grow: 1;
+    min-width: 0;
+    max-width: 300px;
+    margin-left: 20%;
+}
+
+.product_price {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.product_quantity {
+    font-size: 16px;
+    font-weight: bold;
+}
+  
+
+.product p {
+    font-size: 20px;
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order_btns {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: left auto;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.review_form {
+    position: absolute;
+    top: 50%;
+    right: 13%;
+    transform: translate(-50%, -50%);
+    display: none;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.complaint_form {
+    position: absolute;
+    top: 55%;
+    right: 0%;
+    transform: translate(-1%, -50%);
+    display: none;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.review_form_close_btn,
+.complaint_form_close_btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.review_form_hidden,
+.complaint_form_hidden {
+    display: none;
+}
+
+.review_form_visible,
+.complaint_form_visible {
+    display: block;
+}
