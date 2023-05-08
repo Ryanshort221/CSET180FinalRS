@@ -527,9 +527,92 @@ def vendor_orders():
         user_id = session['user_id']
         if session['username'] == 'vendor':
             orders = conn.execute(text('select o.order_id, o.status, o.order_date, o.total, p.vendor_id from orders o join order_items oi on o.order_id=oi.order_id join product_variants pv on oi.variant_id=pv.variant_id join products p on pv.product_id = p.product_id where p.vendor_id =:user_id group by o.order_id').params(user_id=user_id).params(user_id=user_id))
-            products = []
             products = conn.execute(text('select o.order_id, oi.quantity, oi.order_id, oi.variant_id, p.product_id, p.title, p.vendor_id, pv.product_img, pv.size, pv.color, pv.price, pv.discounted_price from orders o join order_items oi on o.order_id = oi.order_id join product_variants pv on oi.variant_id = pv.variant_id join products p on pv.product_id = p.product_id where p.vendor_id =:user_id order by oi.order_id').params(user_id=user_id)).fetchall()
             return render_template('vendor_orders.html', orders=orders, products=products)
+
+
+@app.route('/review', methods=['POST', 'GET'])
+def review():
+    if request.method == 'POST':
+        if 'user_id' in session:
+            user_id = session['user_id']
+            variant_id = request.form['variant_id']
+            description = request.form['description']
+            rating = request.form['rating']
+            conn.execute(text('insert into reviews (user_id, variant_id, rating, description, date) values (:user_id, :variant_id, :rating, :description, curdate())').params(user_id=user_id, variant_id=variant_id, description=description, rating=rating))
+            conn.commit()
+            flash('Review submitted')
+            return redirect('orders')
+        else:
+            flash('Please login')
+            return redirect('login')
+    else:
+        reviews = conn.execute(text('select p.title, pv.size, pv.variant_id, pv.color, u.first_name, u.last_name, r.rating, r.date as review_date, r.description from reviews r join product_variants pv on r.variant_id=pv.variant_id join products p on p.product_id=pv.product_id join users u on u.user_id=r.user_id'))
+        return render_template('review.html', reviews=reviews)
+
+
+@app.route('/filter_reviews', methods=['POST', 'GET'])
+def filter_reviews():
+    if request.method == 'POST':
+        rating = request.form['rating']
+        reviews = conn.execute(text('select p.title, pv.size, pv.variant_id, pv.color, u.first_name, u.last_name, r.rating, r.date as review_date, r.description from reviews r join product_variants pv on r.variant_id=pv.variant_id join products p on p.product_id=pv.product_id join users u on u.user_id=r.user_id where r.rating=:rating').params(rating=rating))
+        return render_template('review.html', reviews=reviews)
+    else:
+        return redirect('review')
+
+
+@app.route('/update_status', methods=['POST', 'GET'])
+def update_status():
+    if request.method == 'POST':
+        order_id = request.form['order_id']
+        status = request.form['status']
+        conn.execute(text('update orders set status=:status where order_id=:order_id').params(status=status, order_id=order_id))
+        conn.commit()
+        flash('Order Status Updated')
+        return redirect('vendor_orders')
+    else:
+        return redirect('vendor_orders')
+
+
+@app.route('/complaints', methods=['POST', 'GET'])
+def complaints():
+    if request.method == 'POST':
+        user_id = session['user_id']
+        variant_id = request.form['variant_id']
+        order_id = request.form['order_id']
+        title = request.form['title']
+        description = request.form['description']
+        demands = request.form['demands']
+        conn.execute(text('insert into complaints (user_id, variant_id, order_id, title, description, demands, date) values(:user_id, :variant_id, :order_id, :title, :description, :demands, curdate())').params(user_id=user_id, variant_id=variant_id, order_id=order_id, title=title, description=description, demands=demands))
+        conn.commit()
+        flash('Complaint submitted')
+        return redirect('orders')
+    else:
+        if session['username'] == 'vendor':
+            vendor_id = session['user_id']
+            complaints = conn.execute(text('select c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_desciption, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.color, pv.size, pv.price, pv.discounted_price, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id join products p on p.product_id=pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
+            return render_template('complaints.html', complaints=complaints)
+        elif session['username'] == 'admin':
+            complaints = conn.execute(text('select c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_description, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.color, pv.size, pv.price, pv.discounted_price, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id join products p on p.product_id=pv.product_id order by c.complaint_id'))
+            return render_template('complaints.html', complaints=complaints)
+        else:
+            user_id = session['user_id']
+            complaints = conn.execute(text('select c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_description, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.color, pv.size, pv.price, pv.discounted_price, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id join products p on p.product_id=pv.product_id where c.user_id=:user_id').params(user_id=user_id))
+            return render_template('complaints.html', complaints=complaints)
+
+
+@app.route('/update_complaints', methods=['POST', 'GET'])
+def update_complaints():
+    if request.method == 'POST':
+        complaint_id = request.form['complaint_id']
+        status = request.form['complaint_status']
+        settled_by = session['user_id']
+        conn.execute(text('update complaints set status=:status, settled_by=:settled_by where complaint_id=:complaint_id').params(status=status, complaint_id=complaint_id, settled_by=settled_by))
+        conn.commit()
+        flash('Complaint Status Updated')
+        return redirect('complaints')
+    else:
+        return redirect('complaints')
 
 
 if __name__ == '__main__':

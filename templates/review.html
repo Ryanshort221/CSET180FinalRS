@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block body %}
+<main>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    {% for message in messages %}
+    <h2>{{ message }}</h2>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<h1>reviews</h1>
+<!-- need to add filter to filter by review rating -->
+<div class="container">
+    <form action="/filter_reviews" method="POST">
+        <label for="rating">Rating</label>
+        <select name="rating" id="rating">
+            <option value="1">1 Star</option>
+            <option value="2">2 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="5">5 Stars</option>
+        </select>
+        <input type="submit" value="Filter">
+    </form>
+</div>
+{% for review in reviews %}
+<div class="review">
+    <div class="review_info">
+        <p>Review Date: {{ review.review_date }}</p>
+        <p>Rating: {{ review.rating }} Stars</p>
+        <p>Description: {{ review.description }}</p>
+        <p>Name: {{review.first_name}} {{review.last_name}}</p>
+        <p>Variant ID: {{review.variant_id}}</p>
+        <p>Color: {{review.color}}</p>
+        <p>Size: {{review.size}}</p>
+    </div>
+    </div>
+{% endfor %}
+</main>
+{% endblock %}

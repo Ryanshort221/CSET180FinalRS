@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block body %}
+<main>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    {% for message in messages %}
+    <h2>{{ message }}</h2>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+{% for c in complaints %}
+    <div class="complaints">
+        <form method="POST" action="/update_complaints">
+            <input type="hidden" name="complaint_id" value="{{ c.complaint_id }}">
+            <p>Complaint ID: {{ c.complaint_id }}</p>
+            <p>Customer ID: {{ c.user_id }}</p>
+            <p>Order ID: {{ c.order_id }}</p>
+            <p>Variant ID: {{ c.variant_id }}</p>
+            <p>Title: {{ c.complaint_title }}</p>
+            <p>Description: {{ c.complaint_description }}</p>
+            <p>Complaint Date: {{ c.date }}</p>
+            <p>Demands: {{ c.demands }}</p>
+            <p>Complaint Status: {{ c.complaint_status }}</p>
+            {% if session['username'] == 'admin' %}
+            <select name="complaint_status">
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="processing">Processing</option>
+                <option value="complete">Complete</option>
+            </select>
+            <input type="submit" value="Update">
+            {% else %}
+            {% endif %}
+        </form>
+        </div>
+    {% endfor %}
+    </div>
+</main>
+{% endblock %}

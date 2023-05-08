@@ -46,10 +46,11 @@
                         <input name="description"></input>
                         <label for="rating">Rating 1-5</label>
                         <input type="number" name="rating" min="1" max="5" required>
+                        <input type="submit" value="Submit">
                     </form>
                 {% endif %}
                 {% if product.complaint != 0 %}
-                    <form action="/complaint" class="complaint_form" method="POST">
+                    <form action="/complaints" class="complaint_form" method="POST">
                         <h2>Complaint</h2>
                         <ion-icon class="complaint_form_close_btn" name="close"></ion-icon>
                         <input type="hidden" name="variant_id" value="{{ product.variant_id }}">
@@ -60,10 +61,11 @@
                         <label for="description">Description</label>
                         <input name="description"></input>
                         <label for="demand">Demand</label>
-                        <select name="demand" id="demand">
+                        <select name="demands" id="demand">
                             <option value="refund">Refund</option>
                             <option value="return">Return</option>
                         </select>
+                        <input type="submit" value="Submit">
                     </form>
                 {% endif %}
             </div>

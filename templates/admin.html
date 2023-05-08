@@ -13,9 +13,6 @@
 <body>
     <header>
         <nav class="header_nav">
-            <div class="header_logo">
-                <img src="static/images/logo-placeholder.png" alt="">
-            </div>
             <div class="header_title">
                 <h1>The Green Dragon</h1>
             </div>
@@ -36,6 +33,7 @@
                     {% elif session['username'] == 'vendor' %}
                     <li><a href="/vendor_orders">Orders</a></li>
                     <li><a href="/vendor">Dashboard</a></li>
+                    <li><a href="/complaints">Complaints</a></li>
                     <li>
                         <form action="/logout" method="POST">
                             <input type="submit" value="Logout">

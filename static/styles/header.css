@@ -117,9 +117,6 @@ main {
     right: 0;
 }
 
-.vendor_delete_form {
-    /* position: absolute; */
-}
 
 .vendor_delete_form input[type="submit"] {
     position: absolute;
