@@ -83,7 +83,7 @@
             {% for c in cart %}
             <div class="order_summary_item">
                 <h5 class="order_summary_title">Title: {{c.title}} </h5>
-                <p class="order_summary_text">Product ID: {{c.product_id}} </p>
+                <!-- <p class="order_summary_text">Product ID: {{c.product_id}} </p> -->
                 <p class="order_summary_text">Color: {{c.color}}</p>
                 <p class="order_summary_text">Size: {{c.size}}</p>
                 {% if c.discounted_price is not none and c.discounted_price > 0 %}

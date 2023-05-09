@@ -84,8 +84,51 @@ def logout():
 
 @app.route('/products', methods=['POST', 'GET'])
 def products():
-    result = conn.execute(text('select * from products natural join product_variants'))
-    return render_template('products.html', result=result)
+    colors = conn.execute(text('select distinct color from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants')).fetchall()
+    categories = conn.execute(text('select distinct category from products'))
+    sizes = conn.execute(text('select distinct size from product_variants'))
+    return render_template('products.html', result=result, colors=colors, categories=categories, sizes=sizes)
+
+
+@app.route('/filter_color', methods=['POST'])
+def filter_color():
+    colors = conn.execute(text('select distinct color from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants')).fetchall()
+    categories = conn.execute(text('select distinct category from products'))
+    sizes = conn.execute(text('select distinct size from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants where color=:color'), request.form)
+    return render_template('products.html', result=result, categories=categories, sizes=sizes, colors=colors)
+
+
+@app.route('/filter_category', methods=['POST'])
+def filter_category():
+    colors = conn.execute(text('select distinct color from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants')).fetchall()
+    categories = conn.execute(text('select distinct category from products'))
+    sizes = conn.execute(text('select distinct size from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants where category=:category'), request.form)
+    return render_template('products.html', result=result, categories=categories, sizes=sizes, colors=colors)
+
+
+@app.route('/filter_size', methods=['POST'])
+def filter_size():
+    colors = conn.execute(text('select distinct color from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants')).fetchall()
+    categories = conn.execute(text('select distinct category from products'))
+    sizes = conn.execute(text('select distinct size from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants where size=:size'), request.form)
+    return render_template('products.html', result=result, categories=categories, sizes=sizes, colors=colors)
+
+
+@app.route('/search', methods=['POST'])
+def search():
+    colors = conn.execute(text('select distinct color from product_variants'))
+    result = conn.execute(text('select * from products natural join product_variants')).fetchall()
+    categories = conn.execute(text('select distinct category from products'))
+    sizes = conn.execute(text('select distinct size from product_variants'))
+    result = conn.execute(text('SELECT * FROM products NATURAL JOIN product_variants WHERE title LIKE :search OR description LIKE :search'), {'search': f'%{request.form["search"]}%'})
+    return render_template('products.html', result=result, categories=categories, sizes=sizes, colors=colors)
 
 
 @app.route('/vendor', methods=['POST', 'GET'])
@@ -169,18 +212,36 @@ def delete_item():
     if request.method == 'POST':
         variant_id = request.form['variant_id']
         product_id = request.form['product_id']
-        conn.execute(text('delete from product_variants where variant_id=:variant_id').params(variant_id=variant_id))
-        conn.commit()
-        result = conn.execute(text('select * from product_variants where product_id=:product_id').params(product_id=product_id))
-        if result.rowcount == 0:
-            conn.execute(text('delete from products where product_id=:product_id').params(product_id=product_id))
+        # flash error message if admin/vendor tries to delete item in cart/order
+        result = conn.execute(text('select * from cart where variant_id=:variant_id').params(variant_id=variant_id))
+        if result.rowcount >= 1:
+            if session['username'] == 'vendor':
+                flash('Item in cart, cannot delete')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Item in cart, cannot delete')
+                return redirect('admin')
+        result = conn.execute(text('select * from order_items where variant_id=:variant_id').params(variant_id=variant_id))
+        if result.rowcount >= 1:
+            if session['username'] == 'vendor':
+                flash('Item in order, cannot delete')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Item in order, cannot delete')
+                return redirect('admin')
+        else:
+            conn.execute(text('delete from product_variants where variant_id=:variant_id').params(variant_id=variant_id))
             conn.commit()
-        if session['username'] == 'vendor':
-            flash('Your product has been deleted')
-            return redirect('vendor')
-        elif session['username'] == 'admin':
-            flash('Your product has been deleted')
-            return redirect('admin')
+            result = conn.execute(text('select * from product_variants where product_id=:product_id').params(product_id=product_id))
+            if result.rowcount == 0:
+                conn.execute(text('delete from products where product_id=:product_id').params(product_id=product_id))
+                conn.commit()
+            if session['username'] == 'vendor':
+                flash('Your product has been deleted')
+                return redirect('vendor')
+            elif session['username'] == 'admin':
+                flash('Your product has been deleted')
+                return redirect('admin')
 
 
 @app.route('/update_item', methods=['POST', 'GET'])
@@ -346,7 +407,7 @@ def add_to_cart():
             return redirect('products')
     else:
         flash('Please login first')
-        return redirect('index')
+        return redirect('products')
 
 
 @app.route('/cart', methods=['POST', 'GET'])
@@ -501,7 +562,6 @@ def payment():
             conn.execute(text('insert into order_items(order_id, variant_id, quantity) values (:order_id, :variant_id, :quantity)').params(order_id=order_id, variant_id=item[1], quantity=item[2]))
             conn.commit()
             flash('Your order has successfully been placed')
-        # will also need to subtract the quantities from product_variants after order is placed and if inventory=0 set stock_status to out of stock otherwise just update inventory-quantity
         conn.execute(text('delete from cart where user_id=:user_id').params(user_id=user_id))
         conn.commit()
         return redirect('orders')
@@ -590,14 +650,14 @@ def complaints():
     else:
         if session['username'] == 'vendor':
             vendor_id = session['user_id']
-            complaints = conn.execute(text('select c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_desciption, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.color, pv.size, pv.price, pv.discounted_price, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id join products p on p.product_id=pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
+            complaints = conn.execute(text('select distinct c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_description, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id and oi.order_id=c.order_id join products p on p.product_id=pv.product_id where p.vendor_id=:vendor_id').params(vendor_id=vendor_id))
             return render_template('complaints.html', complaints=complaints)
         elif session['username'] == 'admin':
-            complaints = conn.execute(text('select c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_description, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.color, pv.size, pv.price, pv.discounted_price, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id join products p on p.product_id=pv.product_id order by c.complaint_id'))
+            complaints = conn.execute(text('select distinct c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_description, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id and oi.order_id=c.order_id join products p on p.product_id=pv.product_id order by c.complaint_id'))
             return render_template('complaints.html', complaints=complaints)
         else:
             user_id = session['user_id']
-            complaints = conn.execute(text('select c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_description, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.color, pv.size, pv.price, pv.discounted_price, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id join products p on p.product_id=pv.product_id where c.user_id=:user_id').params(user_id=user_id))
+            complaints = conn.execute(text('select distinct c.complaint_id, c.status as complaint_status, c.date, c.title as complaint_title, c.user_id, c.order_id, c.description as complaint_description, c.demands, c.variant_id, pv.variant_id, o.order_id, o.order_date, oi.order_id, oi.quantity, pv.product_id, p.category, p.title, p.description, p.vendor_id from complaints c join product_variants pv on c.variant_id=pv.variant_id join orders o on o.order_id=c.order_id join order_items oi on oi.variant_id=pv.variant_id and oi.order_id=c.order_id join products p on p.product_id=pv.product_id where c.user_id=:user_id').params(user_id=user_id))
             return render_template('complaints.html', complaints=complaints)
 
 
@@ -620,18 +680,14 @@ def chat():
     if request.method == 'GET':
         if session['username'] == 'vendor':
             user_id = session['user_id']
-            admins = conn.execute(text('select user_id, username from users where user_type="admin"'))
-            customers = conn.execute(text('select user_id, username from users where user_type="customer"'))
             messages = conn.execute(text('select * from chat')).fetchall()
             chats = conn.execute(text('select c.customer_id, c.admin_vendor_id, c.title, c.date, u.username from chat c join users u on customer_id=user_id where message is null and admin_vendor_id=:user_id').params(user_id=user_id)).fetchall()
-            return render_template('chat.html', admins=admins, customers=customers, chats=chats, messages=messages)
+            return render_template('chat.html', chats=chats, messages=messages)
         elif session['username'] == 'admin':
             user_id = session['user_id']
-            vendors = conn.execute(text('select user_id, username from users where user_type="vendor"'))
-            customers = conn.execute(text('select user_id, username from users where user_type="customer"'))
             messages = conn.execute(text('select * from chat')).fetchall()
             chats = conn.execute(text('select c.customer_id, c.admin_vendor_id, c.title, c.date, u.username from chat c join users u on customer_id=user_id where message is null and admin_vendor_id=:user_id').params(user_id=user_id)).fetchall()
-            return render_template('chat.html', vendors=vendors, customers=customers, chats=chats, messages=messages)
+            return render_template('chat.html', chats=chats, messages=messages)
         else:
             user_id = session['user_id']
             admins = conn.execute(text('select user_id, username from users where user_type="admin"'))
@@ -649,31 +705,22 @@ def start_chat():
     return redirect('chat')
 
 
-@app.route('/send_message_customer', methods=['POST'])
+@app.route('/send_message', methods=['POST'])
 def send_message():
     if request.method == 'POST':
         user_id = session['user_id']
-        conn.execute(text('insert into chat (customer_id, sender_id, admin_vendor_id, receiver_id, message, date) values(:user_id, :user_id, :admin_vendor_id, :admin_vendor_id, :message, curdate())').params(user_id=user_id), request.form)
-        conn.commit()
-        return redirect('chat')
-
-
-@app.route('/send_message_admin', methods=['POST'])
-def send_message_admin():
-    if request.method == 'POST':
-        user_id = session['user_id']
-        conn.execute(text('insert into chat (admin_vendor_id, sender_id, customer_id, receiver_id, message, date) values(:user_id, :user_id, :customer_id, :customer_id, :message, curdate())').params(user_id=user_id), request.form)
-        conn.commit()
-        return redirect('chat')
-
-
-@app.route('/send_message_vendor', methods=['POST'])
-def send_message_vendor():
-    if request.method == 'POST':
-        user_id = session['user_id']
-        conn.execute(text('insert into chat (admin_vendor_id, sender_id, customer_id, receiver_id, message, date) values(:user_id, :user_id, :customer_id, :customer_id, :message, curdate())').params(user_id=user_id), request.form)
-        conn.commit()
-        return redirect('chat')
+        if session['username'] == 'vendor':
+            conn.execute(text('insert into chat (admin_vendor_id, sender_id, customer_id, receiver_id, message, date) values(:user_id, :user_id, :customer_id, :customer_id, :message, curdate())').params(user_id=user_id), request.form)
+            conn.commit()
+            return redirect('chat')
+        elif session['username'] == 'admin':
+            conn.execute(text('insert into chat (admin_vendor_id, sender_id, customer_id, receiver_id, message, date) values(:user_id, :user_id, :customer_id, :customer_id, :message, curdate())').params(user_id=user_id), request.form)
+            conn.commit()
+            return redirect('chat')
+        else:
+            conn.execute(text('insert into chat (customer_id, sender_id, admin_vendor_id, receiver_id, message, date) values(:user_id, :user_id, :admin_vendor_id, :admin_vendor_id, :message, curdate())').params(user_id=user_id), request.form)
+            conn.commit()
+            return redirect('chat')
 
 
 if __name__ == '__main__':

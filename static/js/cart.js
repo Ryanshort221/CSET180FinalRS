@@ -1,5 +1,5 @@
 const quantityInputs = document.querySelectorAll('.quantityInputs');
-const total = document.querySelector('#total');
+const total = document.querySelector('#cart_total');
 const prices = document.querySelectorAll('.cart_price')
 updateTotal();
 function updateTotal() {

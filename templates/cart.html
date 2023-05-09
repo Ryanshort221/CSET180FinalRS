@@ -18,8 +18,7 @@
             <div class="cart_item">
                 <img src="{{c.product_img}}" class="cart_item_img">
                 <div class="cart_item_info">
-                    <h5 class="cart_item_title">Title: {{c.title}}</h5>
-                    <p class="cart_item_text">Product ID: {{c.product_id}}</p>
+                    <p class="cart_item_text">Title: {{c.title}}</p>
                     <p class="cart_item_text">Color: {{c.color}}</p>
                     <p class="cart_item_text">Size: {{c.size}}</p>
                     {% if c.discounted_price is not none and c.discounted_price > 0 %}
@@ -29,7 +28,7 @@
                     {% endif %}
                 </div>
                 <div class="cart_item_quantity">
-                    <input type="text" name="variant_id" value="{{c.variant_id}}">
+                    <input type="hidden" name="variant_id" value="{{c.variant_id}}">
                     <label for="quantity">QTY:</label>
                     <input type="number" class="quantityInputs" name="quantity" min="1" max="{{c.inventory}}" value="{{c.quantity}}">
                     <button type="submit" name="action" value="update-{{c.variant_id}}">Update</button>
@@ -39,7 +38,7 @@
             {% endfor %}
             <div class="checkout_form">
                 <label for="total">Total</label>
-                <input readonly id="total" value="">
+                <input readonly id="cart_total" value="">
                 <button type="submit" name="action" value="checkout">Checkout</button>
             </div>
         </form>

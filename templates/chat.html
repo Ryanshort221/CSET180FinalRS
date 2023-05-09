@@ -9,10 +9,10 @@
     {% endif %}
     {% endwith %}
 {% if session['username'] == 'vendor' %}
-<h1>Vendor Chats</h1>
 {% elif session['username'] == 'admin' %}
-<h1>Admin Chats</h1>
+<h3>Active Chats</h3>
 {% else %}
+<!-- come back and finish styling chat boxes  -->
 <form action="start_chat" method="POST" class="start_chat_form">
     <h3>Start a chat</h3>
     <select name="admin_vendor_id">
@@ -28,43 +28,33 @@
     <input type="submit" value="Chat">
 </form>
 {% endif %}
-{% for c in chats %}
-<div class="chats">
-    <h3>Title: {{c.title}}</h3>
-    <p>Username: {{c.username}}</p>
-    <button class="open_chat">Open Chat</button>
-        <div class="chat">
+<div class="grid_container">
+    {% for c in chats %}
+    <div class="grid_item chats">
+        <h3>Title: {{c.title}}</h3>
+        <p>Username: {{c.username}}</p>
+        <div class="grid_item chat_section">
             {% for m in messages %}
             {% if m.receiver_id == c.admin_vendor_id %}
-            <p class="right_message">{{m.message}}</p>
+            <p class="right_message"><sup>({{m.sender_id}})</sup>{{m.message}}</p>
             {% elif m.sender_id == c.admin_vendor_id %}
-            <p class="left_message">{{m.message}}</p>
+            <p class="left_message"><sup>({{c.admin_vendor_id}})</sup>{{m.message}}</p>
             {% endif %}
             {% endfor %}
-            {% if session['username'] == 'vendor'%}
-            <form class="send_chat_form" action="send_message_vendor" method="POST">
-                <input type="hidden" name="customer_id" value="{{c.customer_id}}">
-                <input type="text" name="message" placeholder="Message" required>
-                <input type="submit" value="Send">
-            </form>
-            {% elif session['username'] == 'admin' %}
-            <form class="send_chat_form" action="send_message_admin" method="POST">
-                <input type="hidden" name="customer_id" value="{{c.customer_id}}">
-                <input type="text" name="message" placeholder="Message" required>
-                <input type="submit" value="Send">
-            </form>
-            {% else %}
-            <form class="send_chat_form" action="send_message_customer" method="POST">
-                <input type="hidden" name="admin_vendor_id" value="{{c.admin_vendor_id}}">
-                <input type="text" name="message" placeholder="Message" required>
-                <input type="submit" value="Send">
-            </form>
-            {% endif %}
         </div>
-</div>
+        <form class="send_chat_form" action="/send_message" method="POST">
+            {% if session ['username'] == 'vendor' %}
+            <input type="hidden" name="customer_id" value="{{c.customer_id}}">
+            {% elif session['username'] == 'admin' %}
+            <input type="hidden" name="customer_id" value="{{c.customer_id}}">
+            {% else %}
+            <input type="hidden" name="admin_vendor_id" value="{{c.admin_vendor_id}}">
+            {% endif %}
+            <input class="send_message" type="text" name="message" placeholder="Message" required>
+            <input class="message_send" type="submit" value="Send">
+        </form>
+    </div>
 {% endfor %}
-<script src="static/js/chat.js"></script>
-<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</div>
 </main>
 {% endblock %}

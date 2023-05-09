@@ -8,13 +8,15 @@
     {% endfor %}
 {% endif %}
 {% endwith %}
-{% for c in complaints %}
+<div class="complaint_container">
+    {% for c in complaints %}
     <div class="complaints">
         <form method="POST" action="/update_complaints">
             <input type="hidden" name="complaint_id" value="{{ c.complaint_id }}">
             <p>Complaint ID: {{ c.complaint_id }}</p>
             <p>Customer ID: {{ c.user_id }}</p>
             <p>Order ID: {{ c.order_id }}</p>
+            <p>Order Date: {{c.order_date}}</p>
             <p>Variant ID: {{ c.variant_id }}</p>
             <p>Title: {{ c.complaint_title }}</p>
             <p>Description: {{ c.complaint_description }}</p>
@@ -35,6 +37,6 @@
         </form>
         </div>
     {% endfor %}
-    </div>
+</div>
 </main>
 {% endblock %}

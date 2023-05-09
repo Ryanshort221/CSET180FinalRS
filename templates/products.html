@@ -8,15 +8,43 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
+    <div class="filters">
+        <form action="filter_color" method="POST">
+            <select name="color" id="">
+               {% for c in colors %}
+                <option value="{{c.color}}">{{c.color}}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Filter by color">
+        </form>
+        <form action="filter_category" method="POST">
+            <select name="category" id="category">
+                {% for c in categories %}
+                <option value="{{c.category}}">{{c.category}}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Filter by category">
+        </form>
+        <form action="filter_size" method="POST">
+            <select name="size" id="size">
+                {% for s in sizes %}
+                <option value="{{s.size}}">{{s.size}}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Filter by size">
+        </form>
+        <form action="search" method="POST">
+            <input type="text" name="search" placeholder="Search">
+            <input type="submit" value="Search">
+        </form>
+        <h3><a href="/products">Clear Filter</a></h3>
+    </div>
     <div class="all_products">
-        {% for a in result.fetchall() %}
+        {% for a in result %}
         <div class="card">
             <img src="{{a.product_img}}" class="card-img-top">
             <div class="card-body">
                 <h5 class="card-title">{{a.title}}</h5>
-                <p class="card-text">Product ID: {{a.product_id}}</p>
-                <p class="card-text">Variant ID: {{a.variant_id}}</p>
-                <p class="card-text">Vendor ID: {{a.vendor_id}}</p>
                 <p class="card-text">Category: {{a.category}}</p>
                 <p class="card-text">Description: {{a.description}}</p>
                 <p class="card-text">Stock status: {{a.stock_status}}</p>
