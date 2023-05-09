@@ -773,7 +773,9 @@ main {
 }
 
 .review_form_close_btn,
-.complaint_form_close_btn {
+.complaint_form_close_btn,
+.admin_chat_close_btn,
+.vendor_chat_close_btn {
     position: absolute;
     top: 0;
     right: 0;
@@ -781,12 +783,78 @@ main {
     cursor: pointer;
 }
 
-.review_form_hidden,
-.complaint_form_hidden {
+.admin_chat,
+.vendor_chat {
+    position: relative;
     display: none;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.review_form_visible,
-.complaint_form_visible {
-    display: block;
+.chat_close_btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    cursor: pointer;
 }
+
+.chat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 400px;
+    width: 400px;
+    overflow-y: scroll;
+    border: 1px solid black;
+    margin: 5px auto;
+}
+
+.chats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 400px;
+    width: 400px;
+    overflow-y: scroll;
+    border: 1px solid black;
+}
+
+.submit_chat {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.start_chat_form {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    margin: 0 auto;
+}
+
+.send_chat_form {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+/* .right_message {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.left_message {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+} */

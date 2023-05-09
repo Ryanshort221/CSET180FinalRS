@@ -19,17 +19,21 @@
                     {% if session.username is not defined %}
                     <li><a href="/register">Register</a></li>
                     {% elif session['username'] == 'admin' %}
-                    <li><a href="/complaints">Complaints</a></li>
-                    <li><a href="/chat">Chat</a></li>
                     <li><a href="/admin">Dashboard</a>
+                    <li><a href="/complaints">Complaints</a></li>
+                    <li><a href="/review">Reviews</a></li>
+                    <li><a href="/chat">Chat</a></li>
                     <li>
                         <form action="/logout" method="POST">
                             <input type="submit" value="Logout">
                         </form>
                     </li>
                     {% elif session['username'] == 'vendor' %}
-                    <li><a href="/vendor_orders">Orders</a></li>
                     <li><a href="/vendor">Dashboard</a></li>
+                    <li><a href="/vendor_orders">Orders</a></li>
+                    <li><a href="/complaints"></a></li>
+                    <li><a href="/review">Reviews</a></li>
+                    <li><a href="/chat">Chat</a></li>
                     <li>
                         <form action="/logout" method="POST">
                             <input type="submit" value="Logout">

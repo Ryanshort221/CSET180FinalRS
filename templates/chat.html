@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block body %}
+<main>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <h2>{{ message }}</h2>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+{% if session['username'] == 'vendor' %}
+<h1>Vendor Chats</h1>
+{% elif session['username'] == 'admin' %}
+<h1>Admin Chats</h1>
+{% else %}
+<form action="start_chat" method="POST" class="start_chat_form">
+    <h3>Start a chat</h3>
+    <select name="admin_vendor_id">
+        {% for v in vendors %}
+        <option value="{{v.user_id}}">{{v.username}}</option>
+        {% endfor %}
+        {% for a in admins %}
+        <option value="{{a.user_id}}">{{a.username}}</option>
+        {% endfor %}
+    </select>
+    <label for="title">Title</label>
+    <input type="text" name="title" required>
+    <input type="submit" value="Chat">
+</form>
+{% endif %}
+{% for c in chats %}
+<div class="chats">
+    <h3>Title: {{c.title}}</h3>
+    <p>Username: {{c.username}}</p>
+    <button class="open_chat">Open Chat</button>
+        <div class="chat">
+            {% for m in messages %}
+            {% if m.receiver_id == c.admin_vendor_id %}
+            <p class="right_message">{{m.message}}</p>
+            {% elif m.sender_id == c.admin_vendor_id %}
+            <p class="left_message">{{m.message}}</p>
+            {% endif %}
+            {% endfor %}
+            {% if session['username'] == 'vendor'%}
+            <form class="send_chat_form" action="send_message_vendor" method="POST">
+                <input type="hidden" name="customer_id" value="{{c.customer_id}}">
+                <input type="text" name="message" placeholder="Message" required>
+                <input type="submit" value="Send">
+            </form>
+            {% elif session['username'] == 'admin' %}
+            <form class="send_chat_form" action="send_message_admin" method="POST">
+                <input type="hidden" name="customer_id" value="{{c.customer_id}}">
+                <input type="text" name="message" placeholder="Message" required>
+                <input type="submit" value="Send">
+            </form>
+            {% else %}
+            <form class="send_chat_form" action="send_message_customer" method="POST">
+                <input type="hidden" name="admin_vendor_id" value="{{c.admin_vendor_id}}">
+                <input type="text" name="message" placeholder="Message" required>
+                <input type="submit" value="Send">
+            </form>
+            {% endif %}
+        </div>
+</div>
+{% endfor %}
+<script src="static/js/chat.js"></script>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</main>
+{% endblock %}
