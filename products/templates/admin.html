@@ -100,10 +100,10 @@
                 <form action="/delete_item" method="POST">
                     <input type="hidden" name="variant_id" value="{{a.variant_id}}">
                     <input type="hidden" name="product_id" value="{{a.product_id}}">
-                    <input id="vendor_delete" type="submit" value="Delete">
+                    <input id="admin_delete" type="submit" value="Delete">
                 </form>
-                <button class="add_variant_btn">Add Variant</button>
-                <button class="update_variant_btn">Update Variant</button>
+                <button class="add_variant_btn add_variant_btn_admin">Add Variant</button>
+                <button class="update_variant_btn update_variant_btn_admin">Update Variant</button>
             </div>
         </div>
             <form class="add_variant_form add_variant_form_hidden" action="/add_variant" method="POST">

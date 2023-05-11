@@ -33,6 +33,13 @@
             </select>
             <input type="submit" value="Filter by size">
         </form>
+        <form action="/filter_availability" method="POST">
+            <select name="availability" id="availability">
+                <option value="in stock">In stock</option>
+                <option value="out of stock">Out of stock</option>
+            </select>
+            <input type="submit" value="Filter by availability">
+        </form>
         <form action="search" method="POST">
             <input type="text" name="search" placeholder="Search">
             <input type="submit" value="Search">

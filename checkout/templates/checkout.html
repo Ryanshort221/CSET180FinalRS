@@ -43,7 +43,7 @@
         <input type="tel" id="phone_number" name="phone_number" value="{{s.phone_number}}" required readonly>
         <label for="country">Country</label>
         <input type="text" id="country" name="country" value="{{s.country}}" required readonly>
-        <input type="text" name="address_id" id="address_id" hidden value="{{s.address_id}}">
+        <input type="hidden" name="address_id" id="address_id"  value="{{s.address_id}}">
         <input type="submit" value="Continue">
         {% endfor %}
         {% endif %}

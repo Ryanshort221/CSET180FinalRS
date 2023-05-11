@@ -14,6 +14,7 @@
     z-index: 9;
 }
 
+
 header nav {
     display: flex;
     justify-content: space-between;
@@ -25,6 +26,7 @@ header nav {
 header nav a,
 footer nav a {
     text-decoration: none;
+    transition: font-size 0.3s ease-in-out;
 }
 
 a:hover,
@@ -32,17 +34,30 @@ header form input:hover {
     text-decoration: underline;
 }
 
+#logout_btn:hover {
+    font-size: 20px;
+}
+
 header {
     width: 100%;
     height: 150px;
     padding: 10px 0;
-    background: linear-gradient(to right, #80adf5, #c2e9fb);
+    background-color: #CDD6F4;
     border-bottom: 1px solid white;
 }
 
 .header_title {
     margin-left: 100px;
     font-size: 25px;
+    transition: font-size 0.3s ease-in-out;
+}
+
+.header_links a:hover {
+    font-size: 20px;
+}
+
+.header_title:hover {
+    font-size: 30px;
 }
 
 
@@ -50,17 +65,18 @@ footer {
     width: 100%;
     height: 200px;
     padding: 10px 0;
-    background: linear-gradient(to right, #80adf5, #c2e9fb);
+    background-color: #CDD6F4;
     border-top: 1px solid white;
 }
 
 .logout_btn {
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: #000;
-    font-size: 16px;
-    font-weight: bold;
+    border: none !important;
+    background: none !important;
+    cursor: pointer !important;
+    color: #000 !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    margin: 0 !important;
 }
 
 .footer_icons ion-icon {
@@ -121,8 +137,69 @@ footer {
 main {
     width: 100%;
     min-height: 100vh;
-    background: linear-gradient(to bottom, #c2e9fb, #80adf5);
+    background-color: #A6ADC8;
 }
+
+form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+form input[type="submit"],
+#show_new_shipping,
+#show_default_shipping {
+    width: 100%;
+    background-color: #7F849C;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+
+form input[type="submit"]:hover {
+    background-color: #6C7086;
+}
+
+form input[type="submit"]:active {
+    background-color: #6C7086;
+}
+
+form input,
+form select {
+    display: block;
+    width: 100%;
+    height: 40px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+
+form input[type="submit"]:hover {
+    background-color: #45475A;
+}
+
+
+form input[type="text"]:focus,
+form input[type="tel"]:focus,
+form input[type="password"]:focus,
+form input[type="number"]:focus,
+form input[type="submit"]:hover,
+form input[type="email"]:focus,
+#user_type:focus,
+#show_default_shipping:hover{
+    outline: none;
+    border-color: #7F849C;
+}
+
 
 .registration_form {
     position: absolute;
@@ -141,47 +218,41 @@ main {
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.registration_form label,
-.login_form label,
-.add_item_form label,
-.update_item_form label,
-.delete_item_form label,
-.add_variant_form label,
-.update_variant_form label {
-    font-weight: bold;
-    margin-bottom: 5px;
+.vendor_delete_btn1 {
+    position: absolute !important;
+    bottom: -30% !important;
+    right: 1% !important;
 }
 
-.registration_form input[type="submit"],
-.login_form input[type="submit"],
-.add_item_form input[type="submit"],
-.update_item_form input[type="submit"],
-.delete_item_form input[type="submit"],
-.add_variant_form input[type="submit"],
-.update_variant_form input[type="submit"] {
-    background-color: #7fb4ff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
+.discount {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
-.add_variant_btn {
+.add_variant_btn_vendor {
     position: absolute;
-    bottom: 0;
-    left: 0;
+    bottom: -19%;
+    left: 1%;
 }
 
-.update_variant_btn {
+.update_variant_btn_vendor {
     position: absolute;
-    bottom: 0;
+    bottom: -19%;
+    right: 30%;
+}
+
+.add_variant_btn_admin {
+    position: absolute;
+    bottom: -12%;
+    left: 1%;
+}
+
+.update_variant_btn_admin {
+    position: absolute;
+    bottom: -12%;
     right: 35%;
 }
-
 
 .login_form {
     position: absolute;
@@ -202,23 +273,6 @@ main {
 }
 
 
-.login_form input {
-    display: block;
-    width: 100%;
-    height: 40px;
-    margin-bottom: 20px;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    transition: border-color 0.3s ease-in-out;
-}
-
-.login_form input[type="submit"]:active,
-.registration_form input[type="submit"]:active {
-    background-color: #1a6fff;
-}
-
 .add_item_form {
     position: absolute;
     top: 59%;
@@ -236,18 +290,7 @@ main {
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-
-.add_item_form input,
-.add_item_form select,
-.registration_form input,
-.registration_form select,
-.update_item_form input,
-.update_item_form select,
-.add_variant_form input,
-.add_variant_form select,
-.update_variant_form input,
-.update_variant_form select {
-    display: block;
+.add_item_form input[type="number"] {
     width: 100%;
     height: 40px;
     margin-bottom: 20px;
@@ -283,38 +326,20 @@ main {
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.update_item_form input:focus,
-.update_item_form select:focus,
-.add_item_form input:focus,
-.add_item_form select:focus,
-.add_variant_form input:focus,
-.add_variant_form select:focus,
-.registration_form input:focus,
-.registration_form select:focus,
-.update_variant_form input:focus,
-.update_variant_form select:focus,
-.login_form input:focus {
-    outline: none;
-    border-color: #7fb4ff;
-}
 
-.update_item_form input[type="submit"]:hover,
-.add_item_form input[type="submit"]:hover,
-.login_form input[type="submit"]:hover,
-.register_form input[type="submit"]:hover,
-.update_variant_form input[type="submit"]:hover,
-.add_variant_form input[type="submit"]:hover {
-    background-color: #4d8fff;
-}
 
 .card {
     position: relative;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     padding: 1rem;
-    margin: .4rem 1rem;
+    margin: .4rem auto;
     width: 350px;
-    background-color: #E1E8EB;
+    background-color: white;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px 0 rgba(0.2, 1, 1, 1);
 }
   
 .card-img-top {
@@ -323,7 +348,13 @@ main {
   
 .card-body {
     font-size: .8rem;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    transform: scale(0.95);
+    transition: transform 0.3s ease-in-out;
+}
+
+.card-body:hover {
+    transform: scale(1);
 }
   
 .card-title {
@@ -357,34 +388,40 @@ main h2:first-of-type {
 
 .add_to_cart_form{
     position: absolute;
-    bottom: 1%;
+    bottom: -4.25%;
     right: 1%;
 }
 
 .add_to_cart_form input[type="number"] {
-    width: 50px;
+    background-color: #626266;
+    position: absolute;
+    bottom: 0;
+    right: 100%;
+    width: 75px;
+    height: 35px;
     padding: 10px;
-    border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 16px;
     transition: border-color 0.3s ease-in-out;
+    color: whitesmoke;
 }
 
+
 .add_to_cart_form input[type="submit"] {
+    background-color: #626266;
     padding: 10px;
-    border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 16px;
     transition: border-color 0.3s ease-in-out;
     outline: none;
-    border-color: #7fb4ff;
+    color: white;
+    height: 35px;
 }
 
 .card img {
     width: 100%;
     height: 200px;
     object-fit: cover;
-    /* zoom out then zoom in when hover */
     transform: scale(.9);
     transition: transform .5s ease;
     border-radius: 10px;
@@ -442,16 +479,45 @@ main h2:first-of-type {
 
 #vendor_delete {
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: -4%;
+    right: 2%;
     cursor: pointer;
-    border: 1.5px solid #7fb4ff;
+    border: 1.5px solid #7F849C;
     border-radius: 5px;
     padding: 5px;
     font-size: 14px;
     cursor: pointer;
-    background-color: #fff;
+    background-color: white;
     width: 75px;
+    color: black;
+    height: 32.5px;
+    font-style: normal;
+}
+
+#admin_delete {
+    position: absolute;
+    bottom: -20.5%;
+    right: 2%;
+    cursor: pointer;
+    border: 1.5px solid #7F849C;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: white;
+    width: 75px;
+    color: black;
+    height: 32.5px;
+}
+
+#admin_delete:hover {
+    background-color: #7F849C;
+    color: white;
+}
+
+#vendor_delete:hover {
+    background-color: #7F849C;
+    color: white;
 }
 
 .vendor_btns {
@@ -462,7 +528,7 @@ main h2:first-of-type {
 
 .vendor_btns button {
     margin: 1rem;
-    background-color: #7fb4ff;
+    background-color: #45475A;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -471,7 +537,14 @@ main h2:first-of-type {
     padding: 10px 20px;
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
+}
 
+.vendor_btns:hover {
+    background-color: #7F849C;
+}
+
+.vendor_btns button:hover {
+    background-color: #9399B2;
 }
 
 #colors {
@@ -484,9 +557,9 @@ main h2:first-of-type {
 
 .add_variant_form {
     position: absolute;
-    top: 70.5%;
-    left: 58.5%;
-    transform: translate(-50%, -60%);
+    top: 58%;
+    left: 34%;
+    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -503,9 +576,9 @@ main h2:first-of-type {
 
 .update_variant_form {
     position: absolute;
-    top: 70.5%;
-    left: 30%;
-    transform: translate(-50%, -60%);
+    top: 58%;
+    right: 20%;
+    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -535,10 +608,19 @@ main h2:first-of-type {
     transform: translate(-50%, -33%);
     width: 1200px;
     height: 600px;
-    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(127,180,255,1) 100%);
+    background-color: whitesmoke;
     border-radius: 10px;
     overflow-y: scroll;
-    border: 1px solid white;
+    padding-top: 15px;
+}
+
+.cart::-webkit-scrollbar {
+    width: 15px;
+    border-radius: 10px;
+}
+
+.cart:hover {
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .cart_item {
@@ -546,11 +628,19 @@ main h2:first-of-type {
     justify-content: space-between;
     align-items: center;
     background-color: #fff;
-    border-bottom: 1px solid #7fb4ff;
+    border-bottom: 1px solid black;
+    border-radius: 10px;
+}
+
+.cart_item_quantity input[type="number"] {
+    background-color: white;
+    border: #000;
+    border: 1px solid black;
+    color: black;
 }
 
 .cart_item:nth-child(1) {
-    border-top: 1px solid #7fb4ff;
+    border-top: 1px solid black;
 }
 
 .cart_item img {
@@ -571,23 +661,46 @@ main h2:first-of-type {
     right: .2%;
 }
 
+.clear_cart_form button {
+    height: 30px;
+}
+
 .cart_item_info {
     display: flex;
 }
 
 .checkout_form {
+    display: flex;
+    flex-direction: row;
     position: absolute;
     top: 0;
     right: 8%;
 }
 
-.order_summary {
+.checkout_form label {
     position: absolute;
-    top: 20%;
+    top: 10%;
+    left: -15%;
+}
+
+.checkout_form button,
+.checkout_form input {
+    height: 30px;
+}
+
+.order_summary {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    position: absolute;
+    top: 22%;
     right: 20%;
     background-color: white;
     width: 350px;
     border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+    padding-bottom: 20px;
 }
 
 .order_summary_payment {
@@ -597,6 +710,8 @@ main h2:first-of-type {
     background-color: white;
     width: 350px;
     border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+    padding-bottom: 20px;
 }
 
 .order_summary h1 {
@@ -606,7 +721,7 @@ main h2:first-of-type {
 
 .shipping_checkout_form {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
@@ -618,33 +733,10 @@ main h2:first-of-type {
     z-index: 10;
 }
 
-.shipping_checkout_form input[type="text"],
-.shipping_checkout_form input[type="tel"],
-.shipping_checkout_form input[type="number"],
-.shipping_checkout_form input[type="submit"],
-#show_new_shipping {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    transition: border-color 0.3s ease-in-out;
-    cursor: pointer;
-}
-
-.shipping_checkout_form input[type="text"]:focus,
-.shipping_checkout_form input[type="tel"]:focus,
-.shipping_checkout_form input[type="number"]:focus,
-.shipping_checkout_form input[type="submit"]:hover,
-#show_new_shipping:hover,
-.add_to_cart_form input[type="number"]{
-    outline: none;
-    border-color: #7fb4ff;
-}
 
 .new_address_shipping_form {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
@@ -658,29 +750,6 @@ main h2:first-of-type {
     border-radius: 10px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
     z-index: 10;
-}
-
-.new_address_shipping_form input[type="text"]:focus,
-.new_address_shipping_form input[type="tel"]:focus,
-.new_address_shipping_form input[type="number"]:focus,
-.new_address_shipping_form input[type="submit"]:hover,
-#show_default_shipping:hover{
-    outline: none;
-    border-color: #7fb4ff;
-}
-
-.new_address_shipping_form input[type="text"],
-.new_address_shipping_form input[type="tel"],
-.new_address_shipping_form input[type="number"],
-.new_address_shipping_form input[type="submit"],
-#show_default_shipping {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    transition: border-color 0.3s ease-in-out;
-    cursor: pointer;
 }
 
 .new_address_shipping_form_hidden,
@@ -709,18 +778,6 @@ main h2:first-of-type {
     border-radius: 10px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
     z-index: 10;
-}
-
-.payment_form input[type="text"],
-.payment_form input[type="number"],
-.payment_form input[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    margin: .5rem;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    transition: border-color 0.3s ease-in-out;
 }
 
 .order_forms {
@@ -778,8 +835,9 @@ main h2:first-of-type {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    background-color: rgba(127, 180, 255, 0.349);
+    background-color: #BAC2DE;
     border-top: 1px solid white;
+    border-bottom: 1px solid white;
 }
 
 .filters a {
@@ -853,13 +911,18 @@ main h2:first-of-type {
 }
 
 button {
-    border: 1.5px solid #7fb4ff;
+    border: 1.5px solid #7F849C;
     border-radius: 5px;
     padding: 5px;
     font-size: 14px;
     cursor: pointer;
     background-color: #fff;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    background-color: #7F849C;
+    color: #fff;
 }
 
 .review_form {
@@ -873,6 +936,30 @@ button {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.review {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+    margin: 10px auto;
+}
+
+.reviews {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.review_filter select option {
+    color: #000;
+    text-align: center;
 }
 
 .complaint_container {
@@ -907,6 +994,7 @@ button {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 11;
 }
 
 .review_form_close_btn,
@@ -942,7 +1030,7 @@ button {
 
 
 .chats {
-    margin: 0 auto;
+    margin: 10px auto;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -954,11 +1042,11 @@ button {
 
 .grid_container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 30px;
     justify-items: center;
     align-items: center;
-    margin: 20px auto;
+    margin: 0 auto;
     width: 80%;
 }
 

@@ -90,20 +90,22 @@
                 <p class="card-text">Color: {{a.color}}</p>
                 <p class="card-text">Size: {{a.size}}</p>
                 <p class="card-text">Price: ${{a.price}}</p>
+                <div class="discount">
                 {% if a.discounted_price is not none and a.discounted_price > 0 %}
                     <p class="card-text">Discounted Price: ${{a.discounted_price}}</p>
                     <p class="card-text">Discount over date: {{a.discount_over_date}}</p>
                 {% else %}
                     <p class="card-text">No discount</p>
                 {% endif %}
+            </div>
                 <form class="vendor_delete_form" action="/delete_item" method="POST">
                     <input type="hidden" name="variant_id" value="{{a.variant_id}}">
                     <input type="hidden" name="product_id" value="{{a.product_id}}">
-                    <input class="vendor_delete_btn" id="vendor_delete" type="submit" value="Delete">
+                    <input class="vendor_delete_btn vendor_delete_btn1" id="vendor_delete" type="submit" value="Delete">
                 </form>
-                <button class="add_variant_btn">Add Variant</button>
-                <button class="update_variant_btn">Update Variant</button>
-            </div>
+                <button class="add_variant_btn add_variant_btn_vendor">Add Variant</button>
+                <button class="update_variant_btn update_variant_btn_vendor">Update Variant</button>
+            </div>  
         </div>
             <form class="add_variant_form add_variant_form_hidden" action="/add_variant" method="POST">
                 <h3>Add Variant</h3>
