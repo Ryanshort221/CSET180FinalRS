@@ -91,6 +91,8 @@ def payment():
             conn.execute(text('insert into order_items(order_id, variant_id, quantity) values (:order_id, :variant_id, :quantity)').params(order_id=order_id, variant_id=item[1], quantity=item[2]))
             conn.commit()
             flash('Your order has successfully been placed')
+        conn.execute(text('update product_variants pv inner join cart c on pv.variant_id=c.variant_id set pv.inventory = case when (pv.inventory - c.quantity) <= 0 then 0 else (pv.inventory - c.quantity) end, pv.stock_status = case when (pv.inventory - c.quantity) <= 0 then "out of stock" else pv.stock_status end where c.user_id=:user_id').params(user_id=user_id))
+        conn.commit()
         conn.execute(text('delete from cart where user_id=:user_id').params(user_id=user_id))
         conn.commit()
         return redirect('orders')

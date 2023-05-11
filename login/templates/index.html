@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block body%}
 <main>
+    <div class="filter_landing">
+        <div class="filter_landing_title">
+            <h4>Product Categories</h4>
+        </div>
+        <form class="filter_landing_form" action="filter_category" method="POST">
+                {% for c in categories %}
+                <button name="category" type="submit" value="{{c.category}}">{{c.category}}</input>
+                {% endfor %}
+        </form>
+    </div>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}

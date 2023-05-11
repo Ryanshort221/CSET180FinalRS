@@ -1,68 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel= "stylesheet" href= "../static/styles/header.css">
-    <title>Multi-vendor ecommerce website</title>
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    <script defer src="static/js/script.js"></script>
-</head>
-<body>
-    <header>
-        <nav class="header_nav">
-            <div class="header_title">
-                <h1>The Green Dragon</h1>
-            </div>
-            <div class="header_links">
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    {% if session.username is not defined %}
-                    <li><a href="/products">Products</a></li>
-                    <li><a href="/register">Register</a></li>
-                    {% elif session['username'] == 'admin' %}
-                    <li><a href="/products">Products</a></li>
-                    <li><a href="/admin">Dashboard</a></li>
-                    <li><a href="/complaints">Complaints</a></li>
-                    <li><a href="/chat">Chat</a></li>
-                    <li><a href="/review">Review</a></li>
-                    <li>
-                        <form action="/logout" method="POST">
-                            <input class="logout_btn" type="submit" value="Logout">
-                        </form>
-                    </li>
-                    {% elif session['username'] == 'vendor' %}
-                    <li><a href="/products">Products</a></li>
-                    <li><a href="/vendor">Dashboard</a></li>
-                    <li><a href="/vendor_orders">Orders</a></li>
-                    <li><a href="/complaints">Complaints</a></li>
-                    <li><a href="/review">Review</a></li>
-                    <li><a href="/chat">Chat</a></li>
-                    <li>
-                        <form action="/logout" method="POST">
-                            <input class="logout_btn" type="submit" value="Logout">
-                        </form>
-                    </li>
-                    {% else %}
-                    <li><a href="/products">Products</a></li>
-                    <li><a href="/cart">Cart</a></li>
-                    <li><a href="/orders">Orders</a></li>
-                    <li><a href="/return"></a>Return</li>
-                    <li><a href="/chat">Chat</a></li>
-                    <li><a href="/review">Review</a></li>
-                    <li><a href="/user_profile">User Profile</a></li>
-                    <li>
-                        <form action="/logout" method="POST">
-                            <input class="logout_btn" type="submit" value="Logout">
-                        </form>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block body %}
 <main>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -91,13 +28,14 @@
                 <p class="card-text">Size: {{a.size}}</p>
                 <p class="card-text">Price: ${{a.price}}</p>
                 <div class="discount">
-                {% if a.discounted_price is not none and a.discounted_price > 0 %}
-                    <p class="card-text">Discounted Price: ${{a.discounted_price}}</p>
-                    <p class="card-text">Discount over date: {{a.discount_over_date}}</p>
-                {% else %}
-                    <p class="card-text">No discount</p>
-                {% endif %}
-            </div>
+                    {% if a.discounted_price is not none and a.discounted_price > 0 %}
+                        <p class="card-text">Discounted Price: ${{a.discounted_price}}</p>
+                        <p class="card-text">Discount over date: {{a.discount_over_date}}</p>
+                    {% else %}
+                        <p class="card-text">No discount</p>
+                        <br><br>
+                    {% endif %}
+                </div>
                 <form class="vendor_delete_form" action="/delete_item" method="POST">
                     <input type="hidden" name="variant_id" value="{{a.variant_id}}">
                     <input type="hidden" name="product_id" value="{{a.product_id}}">
@@ -171,28 +109,8 @@
         <input type="text" name="description" id="description" placeholder="Item Description">
         <input type="submit" value="Update Item">
     </form>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script defer src="static/js/script.js"></script>
 </main>
-    <footer>
-        <nav class="footer_nav">
-            <div class="footer_title">
-                <h1>The Green Dragon</h1>
-            </div>
-            <div class="footer_icons">
-                <ion-icon name="logo-facebook"></ion-icon>
-                <ion-icon name="logo-instagram"></ion-icon>
-                <ion-icon name="egg-outline"></ion-icon>
-                <ion-icon name="earth-outline"></ion-icon>
-            </div>
-            <div class="footer_links">
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/products">Products</a></li>
-                    <li><a href="/">Services</a></li>
-                    <li><a href="/">About Us</a></li>
-                </ul>
-            </div>
-        </nav>
-    </footer>
-</body>
-
-</html>
+{% endblock %}

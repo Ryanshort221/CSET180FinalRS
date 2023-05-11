@@ -9,6 +9,47 @@
     <h3>Email Address: {{a.email}}</h3>    
     <h3>Account Type: {{a.user_type}}</h3>
     {% endfor %} 
-    <!-- add a section to display saved addresses -->
+    <div class="address_container">
+        <h3>Saved Addresses</h3>
+        {% for a in address %}
+        <div class="address">
+            <p class="address_text">Address ID: {{a.address_id}}</p>
+            <p class="address_text">Name: {{a.name}}</p>
+            <p class="address_text">Phone Number: {{a.phone_number}}</p>
+            <p class="address_text">Street Address: {{a.street_address}}</p>
+            <p class="address_text">City: {{a.city}}</p>
+            <p class="address_text">State: {{a.state}}</p>
+            <p class="address_text">Zip Code: {{a.zip_code}}</p>
+            <p class="address_text">Country: {{a.country}}</p>
+            {% if is_default == 0 %}
+            <p class="address_text">Is Default: No</p>
+            {% else %}
+            <p class="address_text">Is Default: {{a.is_default}}</p>
+            {% endif %}
+            <form action="set_default" method="POST">
+                <input type="text" value="{{a.address_id}}">
+                <input type="submit" value="Set Default" id="">
+            </form>
+            <form action="delete_address">
+                <input type="text" value="{{a.address_id}}">
+                <input type="submit" value="Delete">
+            </form>
+            <form action="update_address">
+                <input type="text" value="{{a.address_id}}">
+                <input type="text" value="{{a.name}}">
+                <input type="text" value="{{a.phone_number}}">
+                <input type="text" value="{{a.street_address}}">
+                <input type="text" value="{{a.city}}">
+                <input type="text" value="{{a.state}}">
+                <input type="text" value="{{a.zip_code}}">
+                <input type="text" value="{{a.country}}">
+                <input type="submit" value="Update Address">
+            </form>
+        </div>
+        {% endfor %}
+    </div>
 </main>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="static/js/address.js"></script>
 {% endblock%}

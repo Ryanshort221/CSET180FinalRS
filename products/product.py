@@ -31,7 +31,9 @@ def filter_category():
     result = conn.execute(text('select * from products natural join product_variants')).fetchall()
     categories = conn.execute(text('select distinct category from products'))
     sizes = conn.execute(text('select distinct size from product_variants'))
-    result = conn.execute(text('select * from products natural join product_variants where category=:category'), request.form)
+    selected_category = request.form['category']
+    result = conn.execute(text('select * from products natural join product_variants where category=:category'), {'category': selected_category})
+    # result = conn.execute(text('select * from products natural join product_variants where category=:category'), request.form)
     return render_template('products.html', result=result, categories=categories, sizes=sizes, colors=colors)
 
 
@@ -51,7 +53,7 @@ def search():
     result = conn.execute(text('select * from products natural join product_variants')).fetchall()
     categories = conn.execute(text('select distinct category from products'))
     sizes = conn.execute(text('select distinct size from product_variants'))
-    result = conn.execute(text('SELECT * FROM products NATURAL JOIN product_variants WHERE title LIKE :search OR description LIKE :search'), {'search': f'%{request.form["search"]}%'})
+    result = conn.execute(text('select * from products natural join product_variants where title like :search or description like :search or vendor_id like :search '), {'search': f'%{request.form["search"]}%'})
     return render_template('products.html', result=result, categories=categories, sizes=sizes, colors=colors)
 
 
@@ -76,15 +78,6 @@ def vendor():
 def admin():
     result = conn.execute(text('select * from products natural join product_variants'))
     return render_template('admin.html', result=result)
-
-
-@product.route('/user_profile')
-def profile():
-    username = session['username']
-    user_id = session['user_id']
-    result = conn.execute(text('select username, first_name, last_name, email, user_type from users where username=:username ').params(username=username))
-    address = conn.execute(text('select * from shipping_address where user_id=:user_id').params(user_id=user_id))
-    return render_template('user_profile.html', result=result, address=address)
 
 
 @product.route('/add_item', methods=['POST', 'GET'])

@@ -15,7 +15,8 @@ def encryptor(password):
 
 @loginRegistration.route('/')
 def index():
-    return render_template('index.html')
+    categories = conn.execute(text('select distinct category from products'))
+    return render_template('index.html', categories=categories)
 
 
 @loginRegistration.route('/register', methods=['POST', 'GET'])
@@ -75,3 +76,19 @@ def logout():
     session.clear()
     flash("Successfully logged out")
     return redirect('/')
+
+
+@loginRegistration.route('/user_profile')
+def profile():
+    username = session['username']
+    user_id = session['user_id']
+    result = conn.execute(text('select username, first_name, last_name, email, user_type from users where username=:username ').params(username=username))
+    address = conn.execute(text('select * from shipping_address where user_id=:user_id').params(user_id=user_id))
+    return render_template('user_profile.html', result=result, address=address)
+
+
+@loginRegistration.route('/set_default', methods=['POST'])
+def set_default():
+    user_id = session['user_id']
+    conn.execute(text('update shipping_address set is_default="Null" where user_id=:user_id').params(user_id=user_id))
+# finish set_default, update address, delete address
