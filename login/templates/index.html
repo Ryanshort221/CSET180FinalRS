@@ -19,21 +19,23 @@
     {% endif %}
     {% endwith %}
     {% if session.username is not defined %}
-    <form class="login_form" action="/login" method="POST">
-        <h2>Login</h2>
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" placeholder="Username" required>
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" placeholder="Password" required>
-        <input type="submit" value="Login">
-        <p><a href="/register">Need an account sign up here</a></p>
-    </form>
+    <div class="login_landing">
+        <button class="login_btn_landing">Login</button>
+    </div>
+    <dialog class="modal1">
+        <form class="login_form" action="/login" method="POST">
+            <h2>Login</h2>
+            <input type="text" name="username" id="username" placeholder="Username" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <input type="submit" value="Login">
+            <p><a href="/register">Need an account sign up here</a></p>
+        </form>
+        <button class="close_btn">Close</button>
+    </dialog>
     {% else %}
     <h2>User currently logged in logout to change users</h2>
     {% endif %}
-    <div class="category_filter">
-        <!-- add categories to navigate and filter out on product page -->
-    </div>
     <!-- <img class="landing_img" src="/static/images/logo1.png" alt=""> -->
+    <script src="static/js/index.js"></script>
 </main>
 {% endblock%}

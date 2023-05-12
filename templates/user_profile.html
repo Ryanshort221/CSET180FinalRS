@@ -1,16 +1,38 @@
 {% extends "base.html" %}
 {% block body%}
 <main>
-    {%for a in result.fetchall() %}
     <h2>Profile Information</h2>
-    <h3>Username: {{a.username}}</h3>
-    <h3>First Name: {{a.first_name}}</h3>    
-    <h3>Last Name: {{a.last_name}}</h3>    
-    <h3>Email Address: {{a.email}}</h3>    
-    <h3>Account Type: {{a.user_type}}</h3>
-    {% endfor %} 
+    <div class="add_address_container">
+        <button type="submit" class="add_address_profile">Add New Address</button>
+    </div>
+    <form class="add_address_form" action="add_address" method="POST">
+        <ion-icon id="address_close_btn" name="close"></ion-icon>
+        <label for="name">Name</label>
+        <input name="name" type="text">
+        <label for="phone_number">Phone Number</label>
+        <input name="phone_number" type="text">
+        <label for="street_address">Street Address</label>
+        <input name="street_address" type="text">
+        <label for="city">City</label>
+        <input name="city" type="text">
+        <label for="state">State</label>
+        <input name="state" type="text">
+        <label for="zip_code">Zip Code</label>
+        <input name="zip_code" type="text">
+        <label for="country">Country</label>
+        <input name="country" type="text">
+        <input type="submit" value="Add Address">
+    </form>
+    <div class="account_info">
+        {% for a in result.fetchall() %}
+        <h3>Username: {{a.username}}</h3>
+        <h3>First Name: {{a.first_name}}</h3>    
+        <h3>Last Name: {{a.last_name}}</h3>    
+        <h3>Email Address: {{a.email}}</h3>    
+        <h3>Account Type: {{a.user_type}}</h3>
+        {% endfor %}
+    </div>
     <div class="address_container">
-        <h3>Saved Addresses</h3>
         {% for a in address %}
         <div class="address">
             <p class="address_text">Address ID: {{a.address_id}}</p>
@@ -21,30 +43,41 @@
             <p class="address_text">State: {{a.state}}</p>
             <p class="address_text">Zip Code: {{a.zip_code}}</p>
             <p class="address_text">Country: {{a.country}}</p>
-            {% if is_default == 0 %}
+            {% if a.is_default is none %}
             <p class="address_text">Is Default: No</p>
             {% else %}
             <p class="address_text">Is Default: {{a.is_default}}</p>
             {% endif %}
             <form action="set_default" method="POST">
-                <input type="text" value="{{a.address_id}}">
+                <input type="hidden" name="address_id" value="{{a.address_id}}">
                 <input type="submit" value="Set Default" id="">
             </form>
-            <form action="delete_address">
-                <input type="text" value="{{a.address_id}}">
+            <form action="delete_address" method="POST">
+                <input name="address_id" type="hidden" value="{{a.address_id}}">
                 <input type="submit" value="Delete">
             </form>
-            <form action="update_address">
-                <input type="text" value="{{a.address_id}}">
-                <input type="text" value="{{a.name}}">
-                <input type="text" value="{{a.phone_number}}">
-                <input type="text" value="{{a.street_address}}">
-                <input type="text" value="{{a.city}}">
-                <input type="text" value="{{a.state}}">
-                <input type="text" value="{{a.zip_code}}">
-                <input type="text" value="{{a.country}}">
-                <input type="submit" value="Update Address">
-            </form>
+            <button class="update_address_btn">Update</button>
+            <dialog class="modal">
+                <form class="update_address_form" action="update_address" method="POST">
+                    <input name="address_id" type="hidden" value="{{a.address_id}}">
+                    <label for="name">Name</label>
+                    <input name="name" type="text" value="{{a.name}}">
+                    <label for="phone_number">Phone Number</label>
+                    <input name="phone_number" type="text" value="{{a.phone_number}}">
+                    <label for="street_address">Street Address</label>
+                    <input name="street_address" type="text" value="{{a.street_address}}">
+                    <label for="city">City</label>
+                    <input name="city" type="text" value="{{a.city}}">
+                    <label for="state">State</label>
+                    <input name="state" type="text" value="{{a.state}}">
+                    <label for="zip_code">Zip Code</label>
+                    <input name="zip_code" type="text" value="{{a.zip_code}}">
+                    <label for="country">Country</label>
+                    <input name="country" type="text" value="{{a.country}}">
+                    <input type="submit" value="Update Address">
+                </form>
+                <button class="close_modal">Close</button>
+        </dialog>
         </div>
         {% endfor %}
     </div>

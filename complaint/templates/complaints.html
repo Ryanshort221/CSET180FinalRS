@@ -8,11 +8,13 @@
     {% endfor %}
 {% endif %}
 {% endwith %}
+<h2>Complaints</h2>
 <div class="complaint_container">
     {% for c in complaints %}
     <div class="complaints">
         <form method="POST" action="/update_complaints">
             <input type="hidden" name="complaint_id" value="{{ c.complaint_id }}">
+            <h4>Name: {{c.first_name}} {{c.last_name}}</h4>
             <p>Complaint ID: {{ c.complaint_id }}</p>
             <p>Customer ID: {{ c.user_id }}</p>
             <p>Order ID: {{ c.order_id }}</p>

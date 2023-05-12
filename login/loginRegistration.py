@@ -87,8 +87,33 @@ def profile():
     return render_template('user_profile.html', result=result, address=address)
 
 
-@loginRegistration.route('/set_default', methods=['POST'])
+@loginRegistration.route('/set_default', methods=['POST', 'GET'])
 def set_default():
     user_id = session['user_id']
-    conn.execute(text('update shipping_address set is_default="Null" where user_id=:user_id').params(user_id=user_id))
-# finish set_default, update address, delete address
+    conn.execute(text('update shipping_address set is_default=Null where user_id=:user_id').params(user_id=user_id))
+    conn.commit()
+    conn.execute(text('update shipping_address set is_default="Yes" where user_id=:user_id and address_id=:address_id').params(user_id=user_id), request.form)
+    conn.commit()
+    return redirect('user_profile')
+
+
+@loginRegistration.route('/delete_address', methods=['POST'])
+def delete_address():
+    conn.execute(text('delete from shipping_address where address_id=:address_id'), request.form)
+    conn.commit()
+    return redirect('user_profile')
+
+
+@loginRegistration.route('/update_address', methods=['POST'])
+def update_address():
+    conn.execute(text('update shipping_address set street_address=:street_address, city=:city, state=:state, zip_code=:zip_code, country=:country, phone_number=:phone_number, name=:name where address_id=:address_id'), request.form)
+    conn.commit()
+    return redirect('user_profile')
+
+
+@loginRegistration.route('/add_address', methods=['POST'])
+def add_address():
+    user_id = session['user_id']
+    conn.execute(text('insert into shipping_address(user_id, name, phone_number, street_address, city, state, zip_code, country) values(:user_id, :name, :phone_number, :street_address, :city, :state, :zip_code,  :country)').params(user_id=user_id), request.form)
+    conn.commit()
+    return redirect('user_profile')
