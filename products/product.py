@@ -77,7 +77,8 @@ def vendor():
 @product.route('/admin', methods=['POST', 'GET'])
 def admin():
     result = conn.execute(text('select * from products natural join product_variants'))
-    return render_template('admin.html', result=result)
+    vendor_id = conn.execute(text('select distinct vendor_id from products'))
+    return render_template('admin.html', result=result, vendor_id=vendor_id)
 
 
 @product.route('/add_item', methods=['POST', 'GET'])

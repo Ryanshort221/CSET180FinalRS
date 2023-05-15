@@ -8,12 +8,14 @@
 
 .landing_img {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -30%);
-    width: 50%;
-    height: 100vh;
+    width: 60%;
+    height: 70vh;
     z-index: 9;
+    border-radius: 10px;
+    opacity: .7;
 }
 
 
@@ -61,11 +63,15 @@ header {
     transition: font-size 0.3s ease-in-out;
 }
 
+.header_title a {
+    color:#000
+}
+
 .header_links a:hover {
     font-size: 20px;
 }
 
-.header_title:hover {
+.header_title a:hover {
     font-size: 30px;
 }
 
@@ -258,12 +264,14 @@ form input[type="email"]:focus,
 .discount {
     display: flex;
     flex-direction: row;
+    
 }
 
 .address_container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 5px;
+    justify-items: center;
 }
 
 .address {
@@ -303,6 +311,12 @@ form input[type="email"]:focus,
     padding: 10px;
     width: 150px;
 }
+
+.login_btn_landing:hover {
+    background-color: #9399B2;
+    box-shadow: 1px 2px 6px rgba(1, 1, 1, 0.9);
+}
+
 .modal1 {
     position: absolute;
     top: 60%;
@@ -541,7 +555,7 @@ main h2:first-of-type {
 
 .add_to_cart_form input[type="submit"] {
     background-color: #626266;
-    padding: 10px;
+    padding: 0 10px;
     border: 1px solid #ccc;
     font-size: 16px;
     transition: border-color 0.3s ease-in-out;
@@ -688,7 +702,7 @@ main h2:first-of-type {
 }
 
 .add_variant_form {
-    position: absolute;
+    position:fixed;
     top: 58%;
     left: 34%;
     transform: translate(-50%, -50%);
@@ -707,7 +721,7 @@ main h2:first-of-type {
 
 
 .update_variant_form {
-    position: absolute;
+    position: fixed;
     top: 58%;
     right: 20%;
     transform: translate(-50%, -50%);
@@ -947,7 +961,12 @@ main h2:first-of-type {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
+}
+
+.order_container {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
   
 .order_info p {

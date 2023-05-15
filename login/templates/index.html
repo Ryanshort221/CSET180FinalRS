@@ -2,9 +2,6 @@
 {% block body%}
 <main>
     <div class="filter_landing">
-        <div class="filter_landing_title">
-            <h4>Product Categories</h4>
-        </div>
         <form class="filter_landing_form" action="filter_category" method="POST">
                 {% for c in categories %}
                 <button name="category" type="submit" value="{{c.category}}">{{c.category}}</input>
@@ -35,7 +32,8 @@
     {% else %}
     <h2>User currently logged in logout to change users</h2>
     {% endif %}
-    <!-- <img class="landing_img" src="/static/images/logo1.png" alt=""> -->
+    <a href="/products"><img class="landing_img" src="/static/images/cta1.png" alt=""></a>
+    
     <script src="static/js/index.js"></script>
 </main>
 {% endblock%}

@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block body%}
 <main>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <h2>{{ message }}</h2>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
     <h2>Profile Information</h2>
     <div class="add_address_container">
         <button type="submit" class="add_address_profile">Add New Address</button>

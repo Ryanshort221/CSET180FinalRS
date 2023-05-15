@@ -9,11 +9,11 @@
     {% endif %}
     {% endwith %}
     {% for order in orders %}
+    <div class="order_container">
     <div class="order">
       <div class="order_info">
         <p>Order ID: {{ order.order_id }}</p>
         <p>Order Date: {{ order.order_date }}</p>
-        <p>Total: {{ order.total }}</p>
         <p>Status: {{ order.status }}</p>
         <form action="/update_status" method="POST" class="update_status_form">
           <input type="hidden" name="order_id" value="{{ order.order_id }}">
@@ -48,5 +48,9 @@
       </div>
     </div>
   {% endfor %}
+</div>
 </main>
+<script>
+
+</script>
 {% endblock %}

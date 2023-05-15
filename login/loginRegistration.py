@@ -99,9 +99,14 @@ def set_default():
 
 @loginRegistration.route('/delete_address', methods=['POST'])
 def delete_address():
-    conn.execute(text('delete from shipping_address where address_id=:address_id'), request.form)
-    conn.commit()
-    return redirect('user_profile')
+    result = conn.execute(text('select * from orders where address_id=:address_id'), request.form)
+    if result.rowcount > 0:
+        flash('Cannot delete address used in previous order')
+        return redirect('user_profile')
+    else:
+        conn.execute(text('delete from shipping_address where address_id=:address_id'), request.form)
+        conn.commit()
+        return redirect('user_profile')
 
 
 @loginRegistration.route('/update_address', methods=['POST'])

@@ -85,7 +85,11 @@
     <form class="add_item_form add_form_hidden" action="/add_item" method="POST">
         <h3>Add Item</h3>
         <ion-icon id="add_close_btn" name="close"></ion-icon>
-        <input type="text" name="vendor_id" id="vendor_id" placeholder="Vendor id" required>
+        <select name="vendor_id" id="vendor_id">
+            {% for a in vendor_id %}
+                <option value="{{a.vendor_id}}">{{a.vendor_id}}</option>
+            {% endfor %}
+        </select>
         <input type="text" name="title" id="title" placeholder="Item Title" required>
         <input type="text" name="category" id="category" placeholder="Category" required>
         <input type="text" name="description" id="description" placeholder="Item Description" required>

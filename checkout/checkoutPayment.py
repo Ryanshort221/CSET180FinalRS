@@ -81,7 +81,6 @@ def payment():
     elif request.method == 'POST':
         user_id = session['user_id']
         total = request.form['total']
-        total = total.split('$')[1]
         conn.execute(text('update orders set total=:total, order_date=curdate(), status="pending" where user_id=:user_id order by order_id desc limit 1').params(total=total, user_id=user_id))
         conn.commit()
         order = conn.execute(text('select * from orders where user_id=:user_id order by order_id desc limit 1').params(user_id=user_id)).fetchone()
