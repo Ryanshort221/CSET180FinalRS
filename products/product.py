@@ -33,7 +33,6 @@ def filter_category():
     sizes = conn.execute(text('select distinct size from product_variants'))
     selected_category = request.form['category']
     result = conn.execute(text('select * from products natural join product_variants where category=:category'), {'category': selected_category})
-    # result = conn.execute(text('select * from products natural join product_variants where category=:category'), request.form)
     return render_template('products.html', result=result, categories=categories, sizes=sizes, colors=colors)
 
 
@@ -85,17 +84,9 @@ def admin():
 def add_item():
     if request.method == 'POST':
         title = request.form['title']
-        description = request.form['description']
-        price = request.form['price']
-        inventory = request.form['inventory']
         vendor_id = session['user_id']
-        stock_status = request.form['stock_status']
         discounted_price = request.form['discounted_price']
         discount_over_date = request.form['discount_over_date']
-        color = request.form['color']
-        product_img = request.form['product_img']
-        size = request.form['size']
-        category = request.form['category']
         if session['username'] == 'vendor':
             vendor_id = session['user_id']
         else:
@@ -109,10 +100,10 @@ def add_item():
                 flash('Item already exists')
                 return redirect('admin')
         if discounted_price == '' and discount_over_date == '':
-            result = conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id, category=category, title=title, description=description))
+            result = conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id), request.form)
             conn.commit()
             product_id = conn.execute(text('select * from products where vendor_id=:vendor_id and title=:title').params(vendor_id=vendor_id, title=title)).fetchone()[0]
-            result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status))
+            result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)').params(product_id=product_id), request.form)
             conn.commit()
             if session['username'] == 'vendor':
                 flash('Item successfully added')
@@ -121,9 +112,9 @@ def add_item():
                 flash('Item successfully added')
                 return redirect('admin')
         if discounted_price != '' and discount_over_date != '':
-            conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id, category=category, title=title, description=description))
+            conn.execute(text('insert into products (vendor_id, category, title, description) values(:vendor_id, :category, :title, :description)').params(vendor_id=vendor_id), request.form)
             product_id = conn.execute(text('select * from products where vendor_id=:vendor_id and title=:title').params(vendor_id=vendor_id, title=title)).fetchone()[0]
-            result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date))
+            result = conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)').params(product_id=product_id), request.form)
             conn.commit()
             if session['username'] == 'vendor':
                 flash('Item successfully added')
@@ -214,12 +205,8 @@ def add_variant():
         product_id = request.form['product_id']
         color = request.form['color']
         size = request.form['size']
-        price = request.form['price']
-        inventory = request.form['inventory']
-        stock_status = request.form['stock_status']
         discounted_price = request.form['discounted_price']
         discount_over_date = request.form['discount_over_date']
-        product_img = request.form['product_img']
         result = conn.execute(text('select * from product_variants where product_id=:product_id and color=:color and size=:size').params(product_id=product_id, color=color, size=size))
         if result.rowcount >= 1:
             if session['username'] == 'vendor':
@@ -229,7 +216,7 @@ def add_variant():
                 flash('Variant already exists')
                 return redirect('admin')
         if discounted_price == '' and discount_over_date == '':
-            conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status))
+            conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status)'), request.form)
             conn.commit()
             if session['username'] == 'vendor':
                 flash('Variant successfully added')
@@ -238,7 +225,7 @@ def add_variant():
                 flash('Variant successfully added')
                 return redirect('admin')
         if discounted_price != '' and discount_over_date != '':
-            conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)').params(product_id=product_id, price=price, product_img=product_img, color=color, size=size, inventory=inventory, stock_status=stock_status, discounted_price=discounted_price, discount_over_date=discount_over_date))
+            conn.execute(text('insert into product_variants (product_id, price, product_img, color, size, inventory, stock_status, discounted_price, discount_over_date) values(:product_id, :price, :product_img, :color, :size, :inventory, :stock_status, :discounted_price, :discount_over_date)'), request.form)
             conn.commit()
             if session['username'] == 'vendor':
                 flash('Variant successfully added')

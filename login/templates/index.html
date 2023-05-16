@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block body%}
-<main>
+<main class="landing_pg">
     <div class="filter_landing">
         <form class="filter_landing_form" action="filter_category" method="POST">
                 {% for c in categories %}
@@ -11,13 +11,18 @@
     {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
-        <h2 class="flashed_message">{{ message }}</h2>
+        <h2 class="flashed_msg_landing">{{ message }}</h2>
         {% endfor %}
     {% endif %}
     {% endwith %}
     {% if session.username is not defined %}
     <div class="login_landing">
         <button class="login_btn_landing">Login</button>
+    </div>
+    <div class="cta">
+        <h1>Welcome to the Green Dragon!</h1>
+        <p>Shop our range of products!</p>
+        <a href="/products"><button>Shop now!</button></a>
     </div>
     <dialog class="modal1">
         <form class="login_form" action="/login" method="POST">
@@ -32,8 +37,6 @@
     {% else %}
     <h2>User currently logged in logout to change users</h2>
     {% endif %}
-    <a href="/products"><img class="landing_img" src="/static/images/cta1.png" alt=""></a>
-    
     <script src="static/js/index.js"></script>
 </main>
 {% endblock%}

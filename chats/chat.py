@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, flash, Blueprint
+from flask import Flask, render_template, request, session, redirect, Blueprint
 from sqlalchemy import text
 from db import conn
 app = Flask(__name__)
@@ -11,19 +11,19 @@ def chat():
     if request.method == 'GET':
         if session['username'] == 'vendor':
             user_id = session['user_id']
-            messages = conn.execute(text('select * from chat')).fetchall()
+            messages = conn.execute(text('select * from chat where admin_vendor_id=:user_id').params(user_id=user_id)).fetchall()
             chats = conn.execute(text('select c.customer_id, c.admin_vendor_id, c.title, c.date, u.username from chat c join users u on customer_id=user_id where message is null and admin_vendor_id=:user_id').params(user_id=user_id)).fetchall()
             return render_template('chat.html', chats=chats, messages=messages)
         elif session['username'] == 'admin':
             user_id = session['user_id']
-            messages = conn.execute(text('select * from chat')).fetchall()
+            messages = conn.execute(text('select * from chat where admin_vendor_id=:user_id').params(user_id=user_id)).fetchall()
             chats = conn.execute(text('select c.customer_id, c.admin_vendor_id, c.title, c.date, u.username from chat c join users u on customer_id=user_id where message is null and admin_vendor_id=:user_id').params(user_id=user_id)).fetchall()
             return render_template('chat.html', chats=chats, messages=messages)
         else:
             user_id = session['user_id']
             admins = conn.execute(text('select user_id, username from users where user_type="admin"'))
             vendors = conn.execute(text('select user_id, username from users where user_type="vendor"'))
-            messages = conn.execute(text('select * from chat')).fetchall()
+            messages = conn.execute(text('select * from chat where customer_id=:user_id').params(user_id=user_id)).fetchall()
             chats = conn.execute(text('select c.customer_id, c.admin_vendor_id, c.title, c.date, u.username from chat c join users u on admin_vendor_id=user_id where message is null and customer_id=:user_id').params(user_id=user_id)).fetchall()
             return render_template('chat.html', admins=admins, vendors=vendors, chats=chats, messages=messages)
 

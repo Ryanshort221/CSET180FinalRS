@@ -26,11 +26,14 @@
             <p>Rating: {{ review.rating }} Stars</p>
             <p>Description: {{ review.description }}</p>
             <p>Name: {{review.first_name}} {{review.last_name}}</p>
+            <p>Vendor ID: {{review.vendor_id}}</p>
             <p>Variant ID: {{review.variant_id}}</p>
+            <p>Product ID: {{review.product_id}}</p>
             <p>Color: {{review.color}}</p>
             <p>Size: {{review.size}}</p>
+            <img src="{{review.product_img}}" alt="">
         </div>
-        </div>
+    </div>
     {% endfor %}
 </div>
 </main>

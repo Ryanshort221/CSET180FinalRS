@@ -34,9 +34,9 @@
         <p>Username: {{c.username}}</p>
         <div class="grid_item chat_section">
             {% for m in messages %}
-            {% if m.receiver_id == c.admin_vendor_id %}
+            {% if m.receiver_id == c.admin_vendor_id and m.sender_id == c.customer_id %}
             <p class="right_message"><sup>({{m.sender_id}})</sup>{{m.message}}</p>
-            {% elif m.sender_id == c.admin_vendor_id %}
+            {% elif m.sender_id == c.admin_vendor_id and m.receiver_id == c.customer_id %}
             <p class="left_message"><sup>({{c.admin_vendor_id}})</sup>{{m.message}}</p>
             {% endif %}
             {% endfor %}

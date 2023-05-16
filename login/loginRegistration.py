@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, session, redirect, flash, Blu
 from sqlalchemy import text
 from db import conn
 import hashlib
-# app = Flask(__name__)
-# app.secret_key = 'apple'
+app = Flask(__name__)
+app.secret_key = 'apple'
 loginRegistration = Blueprint('loginRegistration', __name__, template_folder='templates')
 
 
